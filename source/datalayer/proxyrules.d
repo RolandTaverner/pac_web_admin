@@ -1,0 +1,93 @@
+module datalayer.proxyrules;
+
+import std.algorithm.iteration : map;
+import std.array : array;
+import std.json;
+
+import datalayer.repository;
+
+
+class ProxyRulesValue : ISerializable {
+public:
+    this() {
+    }
+
+    this(in ProxyRulesValue v) {
+        m_proxyId = v.m_proxyId;
+        m_enabled = v.enabled;
+        m_hostRuleIds = v.m_hostRuleIds.dup;        
+    }
+
+    this(in long proxyId, in bool enabled, in long[] hostRuleIds) {
+        m_proxyId = proxyId;
+        m_enabled = enabled;
+        m_hostRuleIds = hostRuleIds.dup;
+    }
+
+    long proxyId() const {
+        return m_proxyId;
+    }
+
+    bool enabled() const {
+        return m_enabled;
+    }
+
+    const(long[]) hostRuleIds() const {
+        return m_hostRuleIds;
+    }
+
+    JSONValue toJSON() const {
+        return JSONValue([
+                "proxyId": JSONValue(proxyId()),
+                "enabled": JSONValue(enabled()),
+                "hostRuleIds": JSONValue(hostRuleIds())
+            ]);
+    }
+
+    unittest
+    {
+        ProxyRulesValue value = new ProxyRulesValue(1, true, [1,2,3]);
+        const JSONValue v = value.toJSON();
+        
+        assert( v.object["proxyId"].integer == 1 );
+        assert( v.object["enabled"].boolean == true );
+        assert( v.object["hostRuleIds"].array.length == 3 );
+    }
+
+    void fromJSON(in JSONValue v) {
+        m_proxyId = v.object["proxyId"].integer;
+        m_enabled = v.object["enabled"].boolean;
+        m_hostRuleIds = array(v.object["hostRuleIds"].array.map!( jv => jv.integer));
+    }
+
+    unittest
+    {
+        JSONValue v = JSONValue.emptyObject;
+        v.object["proxyId"] = JSONValue(1);
+        v.object["enabled"] = JSONValue(true);
+        v.object["hostRuleIds"] = JSONValue([1,2,3]);
+
+        ProxyRulesValue value = new ProxyRulesValue();
+        value.fromJSON(v);
+        
+        assert( value.proxyId() == 1 );
+        assert( value.enabled() == true );
+        assert( value.hostRuleIds().length == 3 );
+    }
+
+protected:
+   long m_proxyId;
+   bool m_enabled;
+   long[] m_hostRuleIds;
+}
+
+class ProxyRulesRepository : RepositoryBase!(Key, ProxyRulesValue) {
+public:
+
+}
+
+unittest
+{
+    ProxyRulesRepository r = new ProxyRulesRepository();
+    r.create(new ProxyRulesValue());
+}

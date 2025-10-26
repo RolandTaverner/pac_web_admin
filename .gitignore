@@ -1,6 +1,8 @@
 debug/
 release/
 *.bak
+unittest/
+.vscode/
 
 # Compiled Object files
 *.o
