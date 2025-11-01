@@ -1,5 +1,6 @@
 module datalayer.storage;
 
+import std.exception;
 import std.json;
 
 import datalayer.category;
@@ -7,11 +8,12 @@ import datalayer.hostrule;
 import datalayer.pac;
 import datalayer.proxy;
 import datalayer.proxyrules;
-import datalayer.repository : ISerializable;
+import datalayer.repository.repository : ISerializable;
+
 
 class Storage : ISerializable {
-public:
-    this() {
+    this()
+    {
         m_categories = new CategoryRepository();
         m_hostRules = new HostRuleRepository();
         m_pacs = new PACRepository();
@@ -19,7 +21,8 @@ public:
         m_proxyRules = new ProxyRulesRepository();
     }
 
-    JSONValue toJSON() const {
+    JSONValue toJSON() const
+    {
         return JSONValue([
             "category": m_categories.toJSON(),
             "hostrule": m_hostRules.toJSON(),
@@ -29,7 +32,8 @@ public:
             ]);
     }
     
-    void fromJSON(in JSONValue v) {
+    void fromJSON(in JSONValue v)
+    {
         m_categories.fromJSON(v.object["category"]);
         m_hostRules.fromJSON(v.object["hostrule"]);
         m_pacs.fromJSON(v.object["pac"]);
@@ -37,23 +41,28 @@ public:
         m_proxyRules.fromJSON(v.object["proxyrule"]);
     }
 
-    inout (CategoryRepository) categories() inout {
+    @safe inout (CategoryRepository) categories() inout
+    {
         return m_categories;
     }
 
-    inout(HostRuleRepository) hostRules() inout{
+    @safe inout(HostRuleRepository) hostRules() inout
+    {
         return m_hostRules;
     }
 
-    inout(PACRepository) pacs() inout {
+    @safe inout(PACRepository) pacs() inout
+    {
         return m_pacs;
     }
 
-    inout(ProxyRepository) proxies() inout {
+    @safe inout(ProxyRepository) proxies() inout
+    {
         return m_proxies;
     }
 
-    inout(ProxyRulesRepository) proxyRules() inout {
+    @safe inout(ProxyRulesRepository) proxyRules() inout
+    {
         return m_proxyRules;
     }
 

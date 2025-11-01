@@ -4,38 +4,45 @@ import std.algorithm.iteration : map;
 import std.array : array;
 import std.json;
 
-import datalayer.repository;
+import datalayer.repository.repository;
 
 
-class PACValue : ISerializable {
-public:
-    this() {
+class PACValue : ISerializable
+{
+    this()
+    {
     }
 
-    this(in PACValue v) {
+    this(in PACValue v)
+    {
         m_name = v.m_name.dup;
         m_description = v.m_description.dup;
     }
 
-    this(in string name, in string description, in long[] proxyRuleIds) {
+    this(in string name, in string description, in long[] proxyRuleIds)
+    {
         m_name = name;
         m_description = description;
         m_proxyRuleIds = proxyRuleIds.dup;
     }
 
-    const(string) name() const {
+    const(string) name() const
+    {
         return m_name;
     }
 
-    const(string) description() const {
+    const(string) description() const
+    {
         return m_description;
     }
 
-    const(long[]) proxyRuleIds() const {
+    const(long[]) proxyRuleIds() const
+    {
         return m_proxyRuleIds;
     }
 
-    JSONValue toJSON() const {
+    JSONValue toJSON() const
+    {
         return JSONValue([
                 "name": JSONValue(name()),
                 "description": JSONValue(description()),
@@ -53,7 +60,8 @@ public:
         assert( v.object["proxyRuleIds"].array.length == 3 );
     }
 
-    void fromJSON(in JSONValue v) {
+    void fromJSON(in JSONValue v)
+    {
         m_name = v.object["name"].str;
         m_description = v.object["description"].str;
         m_proxyRuleIds = array(v.object["proxyRuleIds"].array.map!( jv => jv.integer));
@@ -81,9 +89,8 @@ protected:
 }
 
 
-class PACRepository : RepositoryBase!(Key, PACValue) {
-public:
-
+class PACRepository : RepositoryBase!(Key, PACValue)
+{
 }
 
 unittest

@@ -2,38 +2,46 @@ module datalayer.hostrule;
 
 import std.json;
 
-import datalayer.repository;
+import datalayer.repository.repository;
 
-class HostRuleValue : ISerializable {
-public:
-    this() {
+
+class HostRuleValue : ISerializable
+{
+    this()
+    {
     }
 
-    this(in HostRuleValue v) {
+    this(in HostRuleValue v)
+    {
         m_hostTemplate = v.m_hostTemplate.dup;
         m_strict = v.m_strict;
         m_categoryId = v.m_categoryId;
     }
 
-    this(in string hostTemplate, in bool strict, in long categoryId) {
+    this(in string hostTemplate, in bool strict, in long categoryId)
+    {
         m_hostTemplate = hostTemplate;
         m_strict = strict;
         m_categoryId = categoryId;
     }
 
-    const(string) hostTemplate() const {
+    const(string) hostTemplate() const
+    {
         return m_hostTemplate;
     }
 
-    bool strict() const {
+    bool strict() const
+    {
         return m_strict;
     }
 
-    long categoryId() const {
+    long categoryId() const
+    {
         return m_categoryId;
     }
 
-    JSONValue toJSON() const {
+    JSONValue toJSON() const
+    {
         return JSONValue([
             "hostTemplate": JSONValue(m_hostTemplate),
             "strict": JSONValue(m_strict),
@@ -51,7 +59,8 @@ public:
         assert( v.object["categoryId"].integer == 1 );
     }
 
-    void fromJSON(in JSONValue v) {
+    void fromJSON(in JSONValue v)
+    {
         m_hostTemplate = v.object["hostTemplate"].str;
         m_strict = v.object["strict"].boolean;
         m_categoryId = v.object["categoryId"].integer;
@@ -79,9 +88,8 @@ protected:
 }
 
 
-class HostRuleRepository : RepositoryBase!(Key, HostRuleValue) {
-public:
-
+class HostRuleRepository : RepositoryBase!(Key, HostRuleValue)
+{
 }
 
 unittest

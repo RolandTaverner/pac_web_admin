@@ -2,26 +2,31 @@ module datalayer.category;
 
 import std.json;
 
-import datalayer.repository;
+import datalayer.repository.repository;
 
-class CategoryValue : ISerializable {
-public:
-    this() {
+class CategoryValue : ISerializable
+{
+    this()
+    {
     }
 
-    this(in CategoryValue v) {
+    this(in CategoryValue v)
+    {
         m_name = v.m_name.dup;
     }
 
-    this(in string name) {
+    this(in string name)
+    {
         m_name = name;
     }
 
-    const(string) name() const {
+    const(string) name() const
+    {
         return m_name;
     }
 
-    JSONValue toJSON() const {
+    JSONValue toJSON() const
+    {
         return JSONValue(["name": JSONValue(name())]);
     }
 
@@ -33,7 +38,8 @@ public:
         assert( v.object["name"].str == "name" );
     }
 
-    void fromJSON(in JSONValue v) {
+    void fromJSON(in JSONValue v)
+    {
         m_name = v.object["name"].str;
     }
 
@@ -53,9 +59,8 @@ protected:
 }
 
 
-class CategoryRepository : RepositoryBase!(Key, CategoryValue) {
-public:
-
+class CategoryRepository : RepositoryBase!(Key, CategoryValue)
+{
 }
 
 unittest

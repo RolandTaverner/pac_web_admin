@@ -1,45 +1,55 @@
-module datalayer.repository;
+module datalayer.repository.repository;
 
+import core.sync.rwmutex;
 import std.algorithm.iteration : each;
 import std.algorithm.iteration : map;
 import std.algorithm.searching : maxElement;
 import std.array;
+import std.exception : enforce;
 import std.json;
 
+import datalayer.repository.errors;
 
-interface ISerializable {
-public:
+
+interface ISerializable 
+{
     JSONValue toJSON() const;
     void fromJSON(in JSONValue v);
 }
 
 
-class DataObject(K, V : ISerializable) : ISerializable {
-public:
+class DataObject(K, V : ISerializable) : ISerializable 
+{
     alias KeyType = K;
     alias ValueType = V;
 
-    this() {
+    this() 
+    {
     }
 
-    this(in KeyType k, in ValueType v) {
+    this(in KeyType k, in ValueType v) 
+    {
         m_key = KeyType(k);
         m_value = new ValueType(v);
     }
 
-    const(KeyType) key() const {
+    @safe const(KeyType) key() const 
+    {
         return m_key;
     }
 
-    const(ValueType) value() const {
+    @safe const(ValueType) value() const 
+    {
         return m_value;
     }
 
-    JSONValue toJSON() const {
+    JSONValue toJSON() const 
+    {
         return JSONValue(["id": JSONValue(key()), "value": value().toJSON]);
     }
     
-    void fromJSON(in JSONValue v) {
+    void fromJSON(in JSONValue v) 
+    {
         setKey(v.object["id"].integer);
         ValueType value = new ValueType();
         value.fromJSON(v.object["value"]);
@@ -47,11 +57,13 @@ public:
     }
 
 protected:
-    void setKey(in KeyType k) {
+    void setKey(in KeyType k) 
+    {
         m_key = KeyType(k);
     }
 
-    void setValue(in ValueType v) {
+    void setValue(in ValueType v) 
+    {
         m_value = new ValueType(v);
     }
 
@@ -62,12 +74,11 @@ private:
 
 
 interface IRepository(K, V) : ISerializable {
-public:
     alias KeyType = K;
     alias ValueType = V;
     alias DataObjectType = DataObject!(K, V);
 
-    const(DataObjectType)[] getAll() const;
+    @safe const(DataObjectType)[] getAll() const;
     const(DataObjectType) getByKey(in KeyType key) const;
     const(DataObjectType) create(in ValueType value);
     const(DataObjectType) update(in KeyType key, in ValueType value);
@@ -78,63 +89,70 @@ public:
 alias Key = long;
 
 
-class RepositoryBase(K, V) : IRepository!(K, V) {
-public:
-    this() {
+class RepositoryBase(K, V) : IRepository!(K, V) 
+{
+    this()
+    {
+        m_mutex = new ReadWriteMutex();
     }
 
-    const(DataObjectType)[] getAll() const {
+    const(DataObjectType)[] getAll() const
+    {
         return m_entities.values;
     }
 
-    const(DataObjectType) getByKey(in KeyType key) const{
-        return m_entities[key];
+    const(DataObjectType) getByKey(in KeyType key) const
+    {
+        auto entity = enforce!NotFoundError(key in m_entities, "not found");
+        return *entity;
     }
 
-    const(DataObjectType) create(in ValueType value) {
+    const(DataObjectType) create(in ValueType value)
+    {
         immutable KeyType key = getNewKey();
         DataObjectType newDataObject = new DataObject!(K, V)(key, value);
         m_entities[key] = newDataObject;
         return newDataObject;
     }
 
-    const(DataObjectType) update(in KeyType key, in ValueType value) {
-        if (key !in m_entities) {
-            throw new Error("TODO");
-        }
+    const(DataObjectType) update(in KeyType key, in ValueType value)
+    {
+        enforce!NotFoundError(key in m_entities, "not found");
 
         DataObjectType newDataObject = new DataObject!(K, V)(key, value);
         m_entities[key] = newDataObject;
         return newDataObject;
     }
 
-    DataObjectType remove(in KeyType key) {
-        auto entity = key in m_entities;
-        if (entity == null) {
-            throw new Error("TODO");
-        }
+    DataObjectType remove(in KeyType key)
+    {
+        auto entity = enforce!NotFoundError(key in m_entities, "not found");
         m_entities.remove(key);
         return *entity;
     }
 
-    JSONValue toJSON() const {
+    JSONValue toJSON() const 
+    {
         return JSONValue(m_entities.values.map!(p => p.toJSON).array);
     }
     
-    void fromJSON(in JSONValue v) {
+    void fromJSON(in JSONValue v)
+    {
         m_entities.clear();
 
         v.array.each!(
-            (ref const JSONValue jv) => () { 
-                DataObjectType d = new DataObjectType();
-                d.fromJSON(jv);
-                m_entities[d.key()] = d;
-            }
+            (ref const JSONValue jv) => () 
+                { 
+                    DataObjectType d = new DataObjectType();
+                    d.fromJSON(jv);
+                    m_entities[d.key()] = d;
+                }
         );
     }
 
 protected:
-    KeyType getNewKey() const {
+    KeyType getNewKey() const
+    {
         if (!m_entities.length) {
             return 0;
         }
@@ -144,6 +162,7 @@ protected:
 
 private:
     DataObjectType[KeyType] m_entities;
+    ReadWriteMutex m_mutex;
 }
 
 
@@ -178,7 +197,8 @@ private class TestValue : ISerializable {
 
 unittest
 {
-    class TestRepository : RepositoryBase!(Key, TestValue) {
+    class TestRepository : RepositoryBase!(Key, TestValue)
+    {
     }
 
     TestRepository testRepository = new TestRepository();
