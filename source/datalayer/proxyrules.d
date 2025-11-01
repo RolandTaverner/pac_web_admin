@@ -4,39 +4,46 @@ import std.algorithm.iteration : map;
 import std.array : array;
 import std.json;
 
-import datalayer.repository;
+import datalayer.repository.repository;
 
 
-class ProxyRulesValue : ISerializable {
-public:
-    this() {
+class ProxyRulesValue : ISerializable
+{
+    @safe this() pure
+    {
     }
 
-    this(in ProxyRulesValue v) {
+    @safe this(in ProxyRulesValue v) pure
+    {
         m_proxyId = v.m_proxyId;
         m_enabled = v.enabled;
         m_hostRuleIds = v.m_hostRuleIds.dup;        
     }
 
-    this(in long proxyId, in bool enabled, in long[] hostRuleIds) {
+    @safe this(in long proxyId, in bool enabled, in long[] hostRuleIds) pure
+    {
         m_proxyId = proxyId;
         m_enabled = enabled;
         m_hostRuleIds = hostRuleIds.dup;
     }
 
-    long proxyId() const {
+    @safe long proxyId() const pure
+    {
         return m_proxyId;
     }
 
-    bool enabled() const {
+    @safe bool enabled() const pure
+    {
         return m_enabled;
     }
 
-    const(long[]) hostRuleIds() const {
+    @safe const(long[]) hostRuleIds() const pure
+    {
         return m_hostRuleIds;
     }
 
-    JSONValue toJSON() const {
+    JSONValue toJSON() const pure
+    {
         return JSONValue([
                 "proxyId": JSONValue(proxyId()),
                 "enabled": JSONValue(enabled()),
@@ -54,7 +61,8 @@ public:
         assert( v.object["hostRuleIds"].array.length == 3 );
     }
 
-    void fromJSON(in JSONValue v) {
+    void fromJSON(in JSONValue v)
+    {
         m_proxyId = v.object["proxyId"].integer;
         m_enabled = v.object["enabled"].boolean;
         m_hostRuleIds = array(v.object["hostRuleIds"].array.map!( jv => jv.integer));
@@ -81,9 +89,8 @@ protected:
    long[] m_hostRuleIds;
 }
 
-class ProxyRulesRepository : RepositoryBase!(Key, ProxyRulesValue) {
-public:
-
+class ProxyRulesRepository : RepositoryBase!(Key, ProxyRulesValue)
+{
 }
 
 unittest

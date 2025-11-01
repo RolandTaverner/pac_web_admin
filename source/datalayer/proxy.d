@@ -2,38 +2,45 @@ module datalayer.proxy;
 
 import std.json;
 
-import datalayer.repository;
+import datalayer.repository.repository;
 
-class ProxyValue : ISerializable {
-public:
-    this() {
+class ProxyValue : ISerializable
+{
+    @safe this() pure
+    {
     }
 
-    this(in ProxyValue v) {
+    @safe this(in ProxyValue v) pure
+    {
         m_hostAddress = v.m_hostAddress.dup;
         m_description = v.m_description.dup;
         m_builtIn = v.m_builtIn;        
     }
 
-    this(in string hostAddress, in string description, in bool builtIn) {
+    @safe this(in string hostAddress, in string description, in bool builtIn) pure
+    {
         m_hostAddress = hostAddress;
         m_description = description;
         m_builtIn = builtIn;
     }
 
-    const(string) hostAddress() const {
+    @safe const(string) hostAddress() const pure
+    {
         return m_hostAddress;
     }
 
-    const(string) description() const {
+    @safe const(string) description() const pure
+    {
         return m_description;
     }
 
-    bool builtIn() const {
+    @safe bool builtIn() const pure
+    {
         return m_builtIn;
     }
 
-    JSONValue toJSON() const {
+    JSONValue toJSON() const
+    {
         return JSONValue([
                 "hostAddress": JSONValue(hostAddress()),
                 "description": JSONValue(description()),
@@ -51,7 +58,8 @@ public:
         assert( v.object["builtIn"].boolean == false );
     }
 
-    void fromJSON(in JSONValue v) {
+    void fromJSON(in JSONValue v)
+    {
         m_hostAddress = v.object["hostAddress"].str;
         m_description = v.object["description"].str;
         m_builtIn = v.object["builtIn"].boolean;
@@ -79,9 +87,8 @@ protected:
 }
 
 
-class ProxyRepository : RepositoryBase!(Key, ProxyValue) {
-public:
-
+class ProxyRepository : RepositoryBase!(Key, ProxyValue)
+{
 }
 
 unittest
