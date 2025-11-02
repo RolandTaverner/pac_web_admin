@@ -219,7 +219,7 @@ unittest
     TestValue testValue = new TestValue("test");
     
     auto dataObjectFromCreate = testRepository.create(testValue);
-    assert(dataObjectFromCreate.key() == 0);
+    assert(dataObjectFromCreate.key() == 1);
 
     auto dataObjectFromGet = testRepository.getByKey(dataObjectFromCreate.key());
     assert(dataObjectFromGet is dataObjectFromCreate);

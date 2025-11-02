@@ -54,17 +54,19 @@ class ProxyRulesValue : ISerializable
         return JSONValue([
                 "proxyId": JSONValue(proxyId()),
                 "enabled": JSONValue(enabled()),
+                "name": JSONValue(name()),
                 "hostRuleIds": JSONValue(hostRuleIds())
             ]);
     }
 
     unittest
     {
-        ProxyRulesValue value = new ProxyRulesValue(1, true, [1,2,3]);
+        ProxyRulesValue value = new ProxyRulesValue(1, true, "name", [1,2,3]);
         const JSONValue v = value.toJSON();
         
         assert( v.object["proxyId"].integer == 1 );
         assert( v.object["enabled"].boolean == true );
+        assert( v.object["name"].str == "name" );
         assert( v.object["hostRuleIds"].array.length == 3 );
     }
 
@@ -72,6 +74,7 @@ class ProxyRulesValue : ISerializable
     {
         m_proxyId = v.object["proxyId"].integer;
         m_enabled = v.object["enabled"].boolean;
+        m_name = v.object["name"].str;
         m_hostRuleIds = array(v.object["hostRuleIds"].array.map!( jv => jv.integer));
     }
 
@@ -80,6 +83,7 @@ class ProxyRulesValue : ISerializable
         JSONValue v = JSONValue.emptyObject;
         v.object["proxyId"] = JSONValue(1);
         v.object["enabled"] = JSONValue(true);
+        v.object["name"] = JSONValue("name");
         v.object["hostRuleIds"] = JSONValue([1,2,3]);
 
         ProxyRulesValue value = new ProxyRulesValue();
@@ -87,6 +91,7 @@ class ProxyRulesValue : ISerializable
         
         assert( value.proxyId() == 1 );
         assert( value.enabled() == true );
+        assert( value.name() == "name" );
         assert( value.hostRuleIds().length == 3 );
     }
 
