@@ -31,11 +31,13 @@ class Model {
 
     // Categories ======================
 
-    @trusted const(Category[]) getCategories() const {
+    @trusted const(Category[]) getCategories()
+    {
         return array(categories.getAll().map!(c => makeCategory(c)));
     }
 
-    @trusted const(Category) categoryById(in long id) const {
+    @trusted const(Category) categoryById(in long id)
+    {
         try
         {
             return makeCategory(categories.getByKey(id));
@@ -46,13 +48,15 @@ class Model {
         }
     }
 
-    @trusted const(Category) createCategory(in CategoryInput ci) {
+    @trusted const(Category) createCategory(in CategoryInput ci)
+    {
         // TODO: check name uniqueness
         const auto created = categories.create(new dlcategory.CategoryValue(ci.name));
         return makeCategory(created);
     }
 
-    @trusted const(Category) updateCategory(in long id, in CategoryInput ci) {
+    @trusted const(Category) updateCategory(in long id, in CategoryInput ci)
+    {
         try
         {
             // TODO: check name uniqueness
@@ -65,7 +69,8 @@ class Model {
         }
     }
 
-    @trusted const(Category) deleteCategory(in long id) {
+    @trusted const(Category) deleteCategory(in long id)
+    {
         try
         {
             // TODO: update hosts
@@ -80,11 +85,13 @@ class Model {
 
     // Proxies ======================
 
-    @trusted const(Proxy[]) getProxies() const {
+    @trusted const(Proxy[]) getProxies()
+    {
         return array(proxies.getAll().map!(c => makeProxy(c)));
     }
 
-    @trusted const(Proxy) proxyById(in long id) const {
+    @trusted const(Proxy) proxyById(in long id)
+    {
         try
         {
             return makeProxy(proxies.getByKey(id));
@@ -95,13 +102,15 @@ class Model {
         }
     }
 
-    @trusted const(Proxy) createProxy(in ProxyInput pi) {
+    @trusted const(Proxy) createProxy(in ProxyInput pi)
+    {
         // TODO: check hostAddress uniqueness
         const auto created = proxies.create(new dlproxy.ProxyValue(pi.hostAddress, pi.description, pi.builtIn));
         return makeProxy(created);
     }
 
-    @trusted const(Proxy) updateProxy(in long id, in ProxyInput pi) {
+    @trusted const(Proxy) updateProxy(in long id, in ProxyInput pi)
+    {
         try
         {
             // TODO: check hostAddress uniqueness
@@ -114,7 +123,8 @@ class Model {
         }
     }
 
-    @trusted const(Proxy) deleteProxy(long id) {
+    @trusted const(Proxy) deleteProxy(long id)
+    {
         try
         {
             // TODO: update proxy rules
@@ -129,11 +139,13 @@ class Model {
 
     // HostRules ======================
 
-    @trusted const(HostRule[]) getHostRules() const {
+    @trusted const(HostRule[]) getHostRules()
+    {
         return array(hostRules.getAll().map!(c => makeHostRule(c)));
     }
 
-    @trusted const(HostRule) hostRuleById(in long id) const {
+    @trusted const(HostRule) hostRuleById(in long id)
+    {
         try
         {
             return makeHostRule(hostRules.getByKey(id));
@@ -144,7 +156,8 @@ class Model {
         }
     }
 
-    @trusted const(HostRule) createHostRule(in HostRuleInput hri) {
+    @trusted const(HostRule) createHostRule(in HostRuleInput hri)
+    {
         enforce!bool(categories.exists(hri.categoryId), new CategoryNotFound(hri.categoryId));
 
         // TODO: check hostTemplate uniqueness
@@ -152,7 +165,8 @@ class Model {
         return makeHostRule(created);
     }
 
-    @trusted const(HostRule) updateHostRule(in long id, in HostRuleInput hri) {
+    @trusted const(HostRule) updateHostRule(in long id, in HostRuleInput hri)
+    {
         enforce!bool(categories.exists(hri.categoryId), new CategoryNotFound(hri.categoryId));
 
         try
@@ -167,7 +181,8 @@ class Model {
         }
     }
 
-    @trusted const(HostRule) deleteHostRule(long id) {
+    @trusted const(HostRule) deleteHostRule(long id)
+    {
         try
         {
             // TODO: update proxy rules
@@ -183,11 +198,13 @@ class Model {
 
     // ProxyRules ======================
 
-    @trusted const(ProxyRules[]) getProxyRules() const {
+    @trusted const(ProxyRules[]) getProxyRules()
+    {
         return array(proxyRules.getAll().map!(c => makeProxyRules(c)));
     }
 
-    @trusted const(ProxyRules) proxyRulesById(in long id) const {
+    @trusted const(ProxyRules) proxyRulesById(in long id)
+    {
         try
         {
             return makeProxyRules(proxyRules.getByKey(id));
@@ -198,7 +215,8 @@ class Model {
         }
     }
 
-    @trusted const(ProxyRules) createProxyRules(in ProxyRulesInput pri) {
+    @trusted const(ProxyRules) createProxyRules(in ProxyRulesInput pri)
+    {
         enforce!bool(proxies.exists(pri.proxyId), new ProxyNotFound(pri.proxyId));
         foreach (hrId; pri.hostRuleIds)
         {
@@ -209,7 +227,8 @@ class Model {
         return makeProxyRules(created);
     }
 
-    @trusted const(ProxyRules) updateProxyRules(in long id, in ProxyRulesInput pri) {
+    @trusted const(ProxyRules) updateProxyRules(in long id, in ProxyRulesInput pri)
+    {
         enforce!bool(proxies.exists(pri.proxyId), new ProxyNotFound(pri.proxyId));
         foreach (hrId; pri.hostRuleIds)
         {
@@ -228,7 +247,8 @@ class Model {
         }
     }
 
-    @trusted const(HostRule[]) proxyRulesAddHostRule(in long id, in long hostRuleId) {
+    @trusted const(HostRule[]) proxyRulesAddHostRule(in long id, in long hostRuleId)
+    {
         enforce!bool(hostRules.exists(hostRuleId), new HostRuleNotFound(hostRuleId));
 
         try
@@ -250,7 +270,8 @@ class Model {
         }
     }
 
-    @trusted const(HostRule[]) proxyRulesRemoveHostRule(in long id, in long hostRuleId) {
+    @trusted const(HostRule[]) proxyRulesRemoveHostRule(in long id, in long hostRuleId)
+    {
         try
         {
             // TODO: check hostRuleIds uniqueness and existance
@@ -270,7 +291,8 @@ class Model {
         }
     }
 
-    @trusted const(ProxyRules) deleteProxyRules(long id) {
+    @trusted const(ProxyRules) deleteProxyRules(long id)
+    {
         try
         {
             // TODO: update PAC
@@ -285,11 +307,13 @@ class Model {
 
     // PAC ======================
 
-    @trusted const(PAC[]) getPACs() const {
+    @trusted const(PAC[]) getPACs()
+    {
         return array(pacs.getAll().map!(c => makePAC(c)));
     }
 
-    @trusted const(PAC) pacById(in long id) const {
+    @trusted const(PAC) pacById(in long id)
+    {
         try
         {
             return makePAC(pacs.getByKey(id));
@@ -300,7 +324,8 @@ class Model {
         }
     }
 
-    @trusted const(PAC) createPAC(in PACInput pi) {
+    @trusted const(PAC) createPAC(in PACInput pi)
+    {
         foreach (prId; pi.proxyRulesIds)
         {
             enforce!bool(proxyRules.exists(prId), new ProxyRulesNotFound(prId));
@@ -311,7 +336,8 @@ class Model {
         return makePAC(created);
     }
 
-    @trusted const(PAC) updatePAC(in long id, in PACInput pi) {
+    @trusted const(PAC) updatePAC(in long id, in PACInput pi)
+    {
         foreach (prId; pi.proxyRulesIds)
         {
             enforce!bool(proxyRules.exists(prId), new ProxyRulesNotFound(prId));
@@ -330,7 +356,8 @@ class Model {
     }
 
 
-    @trusted const(ProxyRules[]) pacAddProxyRules(in long id, in long proxyRulesId) {
+    @trusted const(ProxyRules[]) pacAddProxyRules(in long id, in long proxyRulesId)
+    {
         enforce!bool(proxyRules.exists(proxyRulesId), new ProxyRulesNotFound(proxyRulesId));
 
         try
@@ -353,7 +380,8 @@ class Model {
         }
     }
 
-    @trusted const(ProxyRules[]) pacRemoveProxyRules(in long id, in long proxyRulesId) {
+    @trusted const(ProxyRules[]) pacRemoveProxyRules(in long id, in long proxyRulesId)
+    {
         enforce!bool(proxyRules.exists(proxyRulesId), new ProxyRulesNotFound(proxyRulesId));
 
         try
@@ -376,26 +404,6 @@ class Model {
         }
     }
 
-    // @trusted const(ProxyRules[]) pacRemoveProxyRules(in long id, in long hostRuleId) {
-    //     try
-    //     {
-    //         // TODO: check hostRuleIds uniqueness and existance
-    //         const auto pr = proxyRules.getByKey(id);
-    //         const auto hrIds = pr.value().hostRuleIds();
-    //         if (!hrIds.canFind(hostRuleId)) {
-    //             throw new ConstraintError("not exists"); // TODO: add info
-    //         }
-    //         const auto filteredHrIds = array(hrIds.filter!(i => i != hostRuleId));
-    //         const auto updated = proxyRules.update(id, new dlproxyrules.ProxyRulesValue(pr.value().proxyId(), pr.value().enabled(), pr.value().name(), filteredHrIds));
-
-    //         return makePAC(updated).proxyRules();
-    //     } 
-    //     catch (re.NotFoundError e) 
-    //     {
-    //         throw new PACNotFound(id);
-    //     }
-    // }
-
     @trusted const(PAC) deletePAC(long id) {
         try
         {
@@ -412,17 +420,17 @@ class Model {
     //=======================
 
 protected:
-    @safe Category makeCategory(in dlcategory.CategoryRepository.DataObjectType dto) const pure
+    @safe Category makeCategory(in dlcategory.CategoryRepository.DataObjectType dto)
     {
         return new Category(dto.key(), dto.value().name());
     }
 
-    @safe Proxy makeProxy(in dlproxy.ProxyRepository.DataObjectType dto) const pure
+    @safe Proxy makeProxy(in dlproxy.ProxyRepository.DataObjectType dto)
     {
         return new Proxy(dto.key(), dto.value().hostAddress(), dto.value().description(), dto.value().builtIn());
     }
 
-    @safe HostRule makeHostRule(in dlhostrule.HostRuleRepository.DataObjectType dto) const pure
+    @safe HostRule makeHostRule(in dlhostrule.HostRuleRepository.DataObjectType dto)
     {
         auto id = dto.key();
         auto hostTemplate = dto.value().hostTemplate();
@@ -434,7 +442,7 @@ protected:
         return new HostRule(id, hostTemplate, strict, category);
     }
 
-    @safe ProxyRules makeProxyRules(in dlproxyrules.ProxyRulesRepository.DataObjectType dto) const pure
+    @safe ProxyRules makeProxyRules(in dlproxyrules.ProxyRulesRepository.DataObjectType dto)
     {
         auto id = dto.key();
 
@@ -449,7 +457,7 @@ protected:
         return new ProxyRules(id, proxy, enabled, name, hostRules);
     }
 
-    @safe PAC makePAC(in dlpac.PACRepository.DataObjectType dto) const pure
+    @safe PAC makePAC(in dlpac.PACRepository.DataObjectType dto)
     {
         auto id = dto.key();
         auto name = dto.value().name();
@@ -466,7 +474,7 @@ protected:
 
     @property @safe inout(dlcategory.CategoryRepository) categories() inout pure
     {
-        return m_storage.categories;
+        return m_storage.categories();
     }
 
     @property @safe inout(dlhostrule.HostRuleRepository) hostRules() inout pure
