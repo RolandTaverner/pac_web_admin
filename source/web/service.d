@@ -1,6 +1,9 @@
 module web.service;
 
+import std.algorithm.comparison : cmp;
 import std.algorithm.iteration : map;
+import std.algorithm.mutation : SwapStrategy;
+import std.algorithm.sorting : sort;
 import std.array;
 import std.conv;
 
@@ -70,7 +73,14 @@ class CategoryService : CategoryAPI
 
     @safe override CategoryList getAll()
     {
-        CategoryList response = { array(m_model.getCategories().map!(c => toDTO(c))) };
+        CategoryList response =
+        { 
+            m_model.getCategories()
+                .map!(c => toDTO(c)).array
+                .sort!( (a, b) => a.id < b.id, SwapStrategy.stable ).array
+                //.sort!( (a, b) => cmp(a.name, b.name) < 0, SwapStrategy.stable ).array  // TODO: decide to order here or at web UI?
+        };
+        
         return response;
     }
 
@@ -123,7 +133,13 @@ class ProxyService : ProxyAPI
 
     @safe override ProxyList getAll()
     {
-        ProxyList response = { array(m_model.getProxies().map!(c => toDTO(c))) };
+        ProxyList response =
+        { 
+            m_model.getProxies()
+                .map!(c => toDTO(c)).array
+                .sort!( (a, b) => a.id < b.id, SwapStrategy.stable ).array
+        };
+
         return response;
     }
 
@@ -176,7 +192,12 @@ class HostRuleService : HostRuleAPI
 
     @safe override HostRuleList getAll()
     {
-        HostRuleList response = { array(m_model.getHostRules().map!(c => toDTO(c))) };
+        HostRuleList response = {
+            m_model.getHostRules()
+                .map!(c => toDTO(c)).array
+                .sort!( (a, b) => a.id < b.id, SwapStrategy.stable ).array
+        };
+
         return response;
     }
 
@@ -229,13 +250,19 @@ class ProxyRulesService : ProxyRulesAPI
 
     @safe override ProxyRulesList getAll()
     {
-        ProxyRulesList response = { array(m_model.getProxyRules().map!(c => toDTO(c))) };
+        ProxyRulesList response =
+        { 
+            m_model.getProxyRules()
+                .map!(c => toDTO(c)).array
+                .sort!( (a, b) => a.id < b.id, SwapStrategy.stable ).array
+        };
+
         return response;
     }
 
     @safe override ProxyRulesDTO create(in ProxyRulesInputDTO prs)
     {
-        const ProxyRulesInput prsi = { proxyId: prs.proxyId, enabled: prs.enabled, hostRuleIds: prs.hostRuleIds.dup };
+        const ProxyRulesInput prsi = { proxyId: prs.proxyId, enabled: prs.enabled, name: prs.name.dup, hostRuleIds: prs.hostRuleIds.dup };
         const ProxyRules created = m_model.createProxyRules(prsi);
         return toDTO(created);
     }
@@ -244,7 +271,7 @@ class ProxyRulesService : ProxyRulesAPI
     {
         return remapExceptions!(delegate() 
         { 
-            const ProxyRulesInput prsi = { proxyId: prs.proxyId, enabled: prs.enabled, hostRuleIds: prs.hostRuleIds.dup };
+            const ProxyRulesInput prsi = { proxyId: prs.proxyId, enabled: prs.enabled, name: prs.name.dup, hostRuleIds: prs.hostRuleIds.dup };
             const ProxyRules updated = m_model.updateProxyRules(id, prsi);
             return toDTO(updated);
         }, ProxyRulesDTO);
@@ -343,8 +370,11 @@ T remapExceptions(alias fun, T)() @trusted {
 }
 
 @safe ProxyRulesDTO toDTO(in ProxyRules prs) {
-    auto hostRules = array(prs.hostRules().map!( hr => toDTO(hr) ));
-    return ProxyRulesDTO(prs.id(), toDTO(prs.proxy()), prs.enabled(), hostRules);
+    auto hostRules = prs.hostRules()
+        .map!( hr => toDTO(hr) ).array
+        .sort!( (a, b) => a.id < b.id, SwapStrategy.stable ).array;
+
+    return ProxyRulesDTO(prs.id(), toDTO(prs.proxy()), prs.enabled(), prs.name(), hostRules);
 }
 
 // class WebService {
