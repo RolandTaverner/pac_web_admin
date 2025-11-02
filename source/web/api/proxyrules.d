@@ -88,6 +88,9 @@ struct ProxyRulesDTO
 unittest
 {
     const HostRuleDTO[] hostRules = [];
-    auto p = ProxyRulesDTO(1, ProxyDTO(), true, "name", hostRules);
-    assert( p.id == 1 );
+    const ProxyRulesDTO p1 = ProxyRulesDTO(1, ProxyDTO(), true, "name", hostRules);
+    assert( p1.id == 1 );
+
+    auto p2 = ProxyRulesDTO(p1);
+    assert( p2.id == p1.id );
 }

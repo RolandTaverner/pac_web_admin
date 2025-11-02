@@ -22,7 +22,7 @@ class Storage : ISerializable
         m_proxyRules = new ProxyRulesRepository();
     }
 
-    JSONValue toJSON() const
+    override JSONValue toJSON()
     {
         return JSONValue([
             "category": m_categories.toJSON(),
@@ -33,7 +33,7 @@ class Storage : ISerializable
             ]);
     }
     
-    void fromJSON(in JSONValue v)
+    override void fromJSON(in JSONValue v)
     {
         m_categories.fromJSON(v.object["category"]);
         m_hostRules.fromJSON(v.object["hostrule"]);

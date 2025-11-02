@@ -15,7 +15,7 @@ import datalayer.repository.errors;
 
 interface ISerializable 
 {
-    JSONValue toJSON() const;
+    JSONValue toJSON();
     void fromJSON(in JSONValue v);
 }
 
@@ -80,8 +80,9 @@ interface IRepository(K, V) : ISerializable {
     alias ValueType = V;
     alias DataObjectType = DataObject!(K, V);
 
-    @safe const(DataObjectType)[] getAll() const;
-    const(DataObjectType) getByKey(in KeyType key) const;
+    const(DataObjectType)[] getAll();
+    const(DataObjectType) getByKey(in KeyType key);
+    bool exists(in KeyType key);
     const(DataObjectType) create(in ValueType value);
     const(DataObjectType) update(in KeyType key, in ValueType value);
     DataObjectType remove(in KeyType key);
@@ -98,63 +99,87 @@ class RepositoryBase(K, V) : IRepository!(K, V)
         m_mutex = new ReadWriteMutex();
     }
 
-    const(DataObjectType)[] getAll() const pure
+    override const(DataObjectType)[] getAll()
     {
-        return m_entities.values;
+        synchronized (m_mutex.reader)
+        {
+            return m_entities.values;
+        }
     }
 
-    @safe const(DataObjectType) getByKey(in KeyType key) const pure
+    @safe override const(DataObjectType) getByKey(in KeyType key)
     {
-        auto entity = enforce!NotFoundError(key in m_entities, fullyQualifiedName!V ~ " id=" ~ to!string(key) ~ " not found");
-        return *entity;
+        synchronized (m_mutex.reader)
+        {
+            auto entity = enforce!NotFoundError(key in m_entities, fullyQualifiedName!V ~ " id=" ~ to!string(key) ~ " not found");
+            return *entity;
+        }
     }
 
-    @safe bool exists(in KeyType key) const pure
+    @safe override bool exists(in KeyType key)
     {
-        return (key in m_entities) != null;
+        synchronized (m_mutex.reader)
+        {
+            return (key in m_entities) != null;
+        }
     }
 
-    @safe const(DataObjectType) create(in ValueType value)
+    @safe override const(DataObjectType) create(in ValueType value)
     {
-        immutable KeyType key = getNewKey();
-        DataObjectType newDataObject = new DataObject!(K, V)(key, value);
-        m_entities[key] = newDataObject;
-        return newDataObject;
+        synchronized (m_mutex.writer)
+        {
+            immutable KeyType key = getNewKey();
+            DataObjectType newDataObject = new DataObject!(K, V)(key, value);
+            m_entities[key] = newDataObject;
+            return newDataObject;
+        }
     }
 
-    @safe const(DataObjectType) update(in KeyType key, in ValueType value)
+    @safe override const(DataObjectType) update(in KeyType key, in ValueType value)
     {
-        enforce!NotFoundError(key in m_entities, fullyQualifiedName!V ~ " id=" ~ to!string(key) ~ " not found");
+        synchronized (m_mutex.writer)
+        {
+            enforce!NotFoundError(key in m_entities, fullyQualifiedName!V ~ " id=" ~ to!string(key) ~ " not found");
 
-        DataObjectType newDataObject = new DataObject!(K, V)(key, value);
-        m_entities[key] = newDataObject;
-        return newDataObject;
+            DataObjectType newDataObject = new DataObject!(K, V)(key, value);
+            m_entities[key] = newDataObject;
+            return newDataObject;
+        }
     }
 
-    @safe DataObjectType remove(in KeyType key)
+    @safe override DataObjectType remove(in KeyType key)
     {
-        auto entity = enforce!NotFoundError(key in m_entities, fullyQualifiedName!V ~ " id=" ~ to!string(key) ~ " not found");
-        m_entities.remove(key);
-        return *entity;
+        synchronized (m_mutex.writer)
+        {        
+            auto entity = enforce!NotFoundError(key in m_entities, fullyQualifiedName!V ~ " id=" ~ to!string(key) ~ " not found");
+            m_entities.remove(key);
+            return *entity;
+        }
     }
 
-    JSONValue toJSON() const 
+    override JSONValue toJSON() 
     {
-        return JSONValue(m_entities.values.map!(p => p.toJSON).array);
+        synchronized (m_mutex.reader)
+        {
+            return JSONValue(m_entities.values.map!(p => p.toJSON).array);
+        }
     }
     
-    void fromJSON(in JSONValue v)
+    override void fromJSON(in JSONValue v)
     {
-        m_entities.clear();
+        synchronized (m_mutex.writer)
+        {        
+            m_entities.clear();
 
-        v.array.each!(
-            (ref const JSONValue jv) => () 
-                { 
-                    DataObjectType d = new DataObjectType();
-                    d.fromJSON(jv);
-                    m_entities[d.key()] = d;
-                }
-        );
+            v.array.each!(
+                (ref const JSONValue jv) => () 
+                    { 
+                        DataObjectType d = new DataObjectType();
+                        d.fromJSON(jv);
+                        m_entities[d.key()] = d;
+                    }
+            );
+        }
     }
 
 protected:
