@@ -36,7 +36,7 @@ interface ProxyRulesAPI
 
 struct ProxyRulesList
 {
-    ProxyRulesDTO[] hostRules;
+    ProxyRulesDTO[] proxyRules;
 }
 
 struct ProxyRulesInputDTO
