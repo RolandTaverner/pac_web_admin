@@ -82,10 +82,10 @@ class Model
         }
     }
 
-    @trusted const(Category[]) filterCategories(in CategoryFilter cf)
+    @trusted const(Category[]) filterCategories(in CategoryFilter f)
     {
         auto pred = (in dlcategory.Category c) {
-            return canFind(c.value().name(), cf.name);
+            return canFind(c.value().name(), f.name);
         };
 
         auto filtered = categories.filterBy(pred);
@@ -147,6 +147,17 @@ class Model
         {
             throw new ProxyNotFound(id);
         }
+    }
+
+    @trusted const(Proxy[]) filterProxies(in ProxyFilter f)
+    {
+        auto pred = (in dlproxy.Proxy p) {
+            return canFind(p.value().hostAddress(), f.hostAddress);
+        };
+
+        auto filtered = proxies.filterBy(pred);
+
+        return filtered.map!(p => makeProxy(p)).array;
     }
 
     // HostRules ======================

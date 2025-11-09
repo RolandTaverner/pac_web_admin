@@ -9,6 +9,9 @@ interface ProxyAPI
     @method(HTTPMethod.GET) @path("/all")
     ProxyList getAll();
 
+    @method(HTTPMethod.POST) @path("/filter")  @bodyParam("f")
+    ProxyList filter(in ProxyFilterDTO f);
+
     @method(HTTPMethod.GET) @path(":id")
     ProxyDTO getById(in long _id);
 
@@ -39,6 +42,11 @@ struct ProxyInputDTO
     string hostAddress;
     string description;
     bool builtIn;
+}
+
+struct ProxyFilterDTO
+{
+    string hostAddress;
 }
 
 struct ProxyDTO

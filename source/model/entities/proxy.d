@@ -51,6 +51,16 @@ struct ProxyInput
     bool builtIn;
 }
 
+struct ProxyFilter
+{
+    @safe this(in string hostAddress) pure
+    {
+        this.hostAddress = hostAddress.dup;
+    }
+    
+    string hostAddress;
+}
+
 class ProxyNotFound : NotFoundBase!(Proxy)
 {
     mixin finalEntityErrorCtors!("not found");

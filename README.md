@@ -144,6 +144,27 @@ Response
 }
 ```
 
+### Filter
+
+```bash
+curl -X POST http://127.0.0.1:8080/api/proxy/filter -H "Content-Type: application/json" -d '{"hostAddress": "127"}'
+```
+
+Response
+
+```json
+{
+  "proxies": [
+    {
+      "id": 1,
+      "hostAddress": "127.0.0.1:8080",
+      "description": "local proxy",
+      "builtIn": false
+    }
+  ]
+}
+```
+
 ### Get by id
 
 ```bash
