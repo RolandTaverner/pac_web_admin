@@ -36,7 +36,7 @@ class ProxyService : ProxyAPI
 
     @safe override ProxyList filter(in ProxyFilterDTO f)
     {
-        auto filter = ProxyFilter(f.hostAddress);
+        auto filter = ProxyFilter(f.type, f.address);
         ProxyList response =
         {
             m_model.filterProxies(filter)
@@ -52,7 +52,7 @@ class ProxyService : ProxyAPI
     @safe override ProxyDTO create(in ProxyInputDTO p)
     {
         const ProxyInput pi = {
-            hostAddress: p.hostAddress, description: p.description, builtIn: p.builtIn
+            type: p.type, address: p.address, description: p.description,
         };
         const Proxy created = m_model.createProxy(pi);
         return toDTO(created);
@@ -62,7 +62,7 @@ class ProxyService : ProxyAPI
     {
         return remapExceptions!(delegate() {
             const ProxyInput pi = {
-                hostAddress: p.hostAddress, description: p.description, builtIn: p.builtIn
+                type: p.type, address: p.address, description: p.description,
             };
             const Proxy updated = m_model.updateProxy(id, pi);
             return toDTO(updated);

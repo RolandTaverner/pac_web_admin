@@ -130,15 +130,15 @@ Response
   "proxies": [
     {
       "id": 1,
-      "hostAddress": "127.0.0.1:8080",
-      "description": "some local proxy",
-      "builtIn": false
+      "type": "HTTP",
+      "address": "127.0.0.1:8080",
+      "description": "local proxy"
     },
     {
       "id": 2,
-      "hostAddress": "10.10.0.10:8080",
-      "description": "another proxy",
-      "builtIn": false
+      "type": "SOCKS",
+      "address": "10.10.0.10:8080",
+      "description": "dante"
     }
   ]
 }
@@ -147,7 +147,7 @@ Response
 ### Filter
 
 ```bash
-curl -X POST http://127.0.0.1:8080/api/proxy/filter -H "Content-Type: application/json" -d '{"hostAddress": "127"}'
+curl -X POST http://127.0.0.1:8080/api/proxy/filter -H "Content-Type: application/json" -d '{"type": "HTT", "address": "127"}'
 ```
 
 Response
@@ -157,9 +157,9 @@ Response
   "proxies": [
     {
       "id": 1,
-      "hostAddress": "127.0.0.1:8080",
-      "description": "local proxy",
-      "builtIn": false
+      "type": "HTTP",
+      "address": "127.0.0.1:8080",
+      "description": "local proxy"
     }
   ]
 }
@@ -176,33 +176,33 @@ Response
 ```json
 {
   "id": 1,
-  "hostAddress": "127.0.0.1:8080",
-  "description": "some local proxy",
-  "builtIn": false
+  "type": "HTTP",
+  "address": "127.0.0.1:8080",
+  "description": "local proxy"
 }
 ```
 
 ### Create
 
 ```bash
-curl -X POST http://127.0.0.1:8080/api/proxy/create -H "Content-Type: application/json" -d '{"hostAddress": "127.0.0.1:1080", "description": "Proxy description", "builtIn": false}'
+curl -X POST http://127.0.0.1:8080/api/proxy/create -H "Content-Type: application/json" -d '{"type": "HTTP", "address": "127.0.0.1:1080", "description": "Proxy description"}'
 ```
 
 Response
 
 ```json
 {
-  "id": 1,
-  "hostAddress": "127.0.0.1:1080",
-  "description": "Proxy description",
-  "builtIn": false
+  "id": 3,
+  "type": "HTTP",
+  "address": "127.0.0.1:1080",
+  "description": "Proxy description"
 }
 ```
 
 ### Update
 
 ```bash
-curl -X PUT http://127.0.0.1:8080/api/proxy/1/update -H "Content-Type: application/json" -d '{"hostAddress": "127.0.0.1:80", "description": "updated description", "builtIn": false}'
+curl -X PUT http://127.0.0.1:8080/api/proxy/1/update -H "Content-Type: application/json" -d '{"type": "HTTP", "address": "127.0.0.1:80", "description": "updated description"}'
 ```
 
 Response
@@ -210,9 +210,9 @@ Response
 ```json
 {
   "id": 1,
-  "hostAddress": "127.0.0.1:80",
-  "description": "updated description",
-  "builtIn": false
+  "type": "HTTP",
+  "address": "127.0.0.1:80",
+  "description": "updated description"
 }
 ```
 
@@ -227,9 +227,9 @@ Response
 ```json
 {
   "id": 1,
-  "hostAddress": "127.0.0.1:1080",
-  "description": "Proxy description",
-  "builtIn": false
+  "type": "HTTP",
+  "address": "127.0.0.1:80",
+  "description": "updated description"
 }
 ```
 
@@ -365,9 +365,9 @@ Response
       "id": 1,
       "proxy": {
         "id": 1,
-        "hostAddress": "127.0.0.1:80",
-        "description": "updated description",
-        "builtIn": false
+        "type": "HTTP",
+        "address": "127.0.0.1:80",
+        "description": "updated description"
       },
       "enabled": true,
       "name": "proxy group 1",
@@ -400,9 +400,9 @@ Response
   "id": 1,
   "proxy": {
     "id": 1,
-    "hostAddress": "127.0.0.1:80",
-    "description": "updated description",
-    "builtIn": false
+    "type": "HTTP",
+    "address": "127.0.0.1:80",
+    "description": "updated description"
   },
   "enabled": true,
   "name": "proxy group 1",
@@ -433,9 +433,9 @@ Response
   "id": 1,
   "proxy": {
     "id": 1,
-    "hostAddress": "127.0.0.1:8080",
-    "description": "local proxy",
-    "builtIn": false
+    "type": "HTTP",
+    "address": "127.0.0.1:80",
+    "description": "updated description"
   },
   "enabled": true,
   "name": "proxy group 1",
@@ -466,9 +466,9 @@ Response
   "id": 1,
   "proxy": {
     "id": 1,
-    "hostAddress": "127.0.0.1:8080",
-    "description": "local proxy",
-    "builtIn": false
+    "type": "HTTP",
+    "address": "127.0.0.1:80",
+    "description": "updated description"
   },
   "enabled": true,
   "name": "proxy group updated",
@@ -499,9 +499,9 @@ Response
   "id": 3,
   "proxy": {
     "id": 1,
-    "hostAddress": "127.0.0.1:8080",
-    "description": "local proxy",
-    "builtIn": false
+    "type": "HTTP",
+    "address": "127.0.0.1:80",
+    "description": "updated description"
   },
   "enabled": true,
   "name": "proxy group updated",
@@ -622,9 +622,9 @@ Response
           "id": 1,
           "proxy": {
             "id": 1,
-            "hostAddress": "127.0.0.1:8080",
-            "description": "local proxy",
-            "builtIn": false
+            "type": "HTTP",
+            "address": "127.0.0.1:80",
+            "description": "updated description"
           },
           "enabled": true,
           "name": "proxy group 1",
@@ -668,9 +668,9 @@ Response
       "id": 1,
       "proxy": {
         "id": 1,
-        "hostAddress": "127.0.0.1:8080",
-        "description": "local proxy",
-        "builtIn": false
+        "type": "HTTP",
+        "address": "127.0.0.1:80",
+        "description": "updated description"
       },
       "enabled": true,
       "name": "proxy group 1",
@@ -712,9 +712,9 @@ Response
       "id": 1,
       "proxy": {
         "id": 1,
-        "hostAddress": "127.0.0.1:8080",
-        "description": "local proxy",
-        "builtIn": false
+        "type": "HTTP",
+        "address": "127.0.0.1:80",
+        "description": "updated description"
       },
       "enabled": true,
       "name": "proxy group 1",
@@ -756,9 +756,9 @@ Response
       "id": 2,
       "proxy": {
         "id": 1,
-        "hostAddress": "127.0.0.1:8080",
-        "description": "local proxy",
-        "builtIn": false
+        "type": "HTTP",
+        "address": "127.0.0.1:80",
+        "description": "updated description"
       },
       "enabled": true,
       "name": "proxy group 1",
@@ -817,9 +817,9 @@ Response
       "id": 1,
       "proxy": {
         "id": 1,
-        "hostAddress": "127.0.0.1:8080",
-        "description": "local proxy",
-        "builtIn": false
+        "type": "HTTP",
+        "address": "127.0.0.1:80",
+        "description": "updated description"
       },
       "enabled": true,
       "name": "proxy group 1",
@@ -854,9 +854,9 @@ Returns updated proxy rules for PAC object.
       "id": 1,
       "proxy": {
         "id": 1,
-        "hostAddress": "127.0.0.1:8080",
-        "description": "local proxy",
-        "builtIn": false
+        "type": "HTTP",
+        "address": "127.0.0.1:80",
+        "description": "updated description"
       },
       "enabled": true,
       "name": "proxy group 1",
@@ -875,10 +875,10 @@ Returns updated proxy rules for PAC object.
     {
       "id": 2,
       "proxy": {
-        "id": 1,
-        "hostAddress": "127.0.0.1:8080",
-        "description": "local proxy",
-        "builtIn": false
+        "id": 2,
+        "type": "SOCKS",
+        "address": "10.10.0.10:8080",
+        "description": "dante"
       },
       "enabled": true,
       "name": "proxy group 1",
@@ -922,9 +922,9 @@ Returns updated proxy rules for PAC object.
       "id": 1,
       "proxy": {
         "id": 1,
-        "hostAddress": "127.0.0.1:8080",
-        "description": "local proxy",
-        "builtIn": false
+        "type": "HTTP",
+        "address": "127.0.0.1:80",
+        "description": "updated description"
       },
       "enabled": true,
       "name": "proxy group 1",

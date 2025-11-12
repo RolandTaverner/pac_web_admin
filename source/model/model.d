@@ -114,9 +114,9 @@ class Model
 
     @trusted const(Proxy) createProxy(in ProxyInput pi)
     {
-        // TODO: check hostAddress uniqueness
-        const auto created = proxies.create(new dlproxy.ProxyValue(pi.hostAddress, pi.description, pi
-                .builtIn));
+        // TODO: check address uniqueness
+        const auto created = proxies.create(
+            new dlproxy.ProxyValue(pi.type, pi.address, pi.description));
         return makeProxy(created);
     }
 
@@ -124,9 +124,9 @@ class Model
     {
         try
         {
-            // TODO: check hostAddress uniqueness
-            const auto updated = proxies.update(id, new dlproxy.ProxyValue(pi.hostAddress, pi.description, pi
-                    .builtIn));
+            // TODO: check address uniqueness
+            const auto updated = proxies.update(id,
+                new dlproxy.ProxyValue(pi.type, pi.address, pi.description));
             return makeProxy(updated);
         }
         catch (re.NotFoundError e)
@@ -152,7 +152,8 @@ class Model
     @trusted const(Proxy[]) filterProxies(in ProxyFilter f)
     {
         auto pred = (in dlproxy.Proxy p) {
-            return canFind(p.value().hostAddress(), f.hostAddress);
+            return (f.address.length == 0 || canFind(p.value().address(), f.address))
+                && (f.type.length == 0 || canFind(p.value().type(), f.type));
         };
 
         auto filtered = proxies.filterBy(pred);
@@ -464,8 +465,10 @@ protected:
 
     @safe Proxy makeProxy(in dlproxy.ProxyRepository.DataObjectType dto)
     {
-        return new Proxy(dto.key(), dto.value().hostAddress(), dto.value()
-                .description(), dto.value().builtIn());
+        return new Proxy(dto.key(),
+            dto.value().type(),
+            dto.value().address(),
+            dto.value().description());
     }
 
     @safe HostRule makeHostRule(in dlhostrule.HostRuleRepository.DataObjectType dto)

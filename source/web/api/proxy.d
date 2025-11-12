@@ -32,43 +32,44 @@ struct ProxyList
 
 struct ProxyInputDTO
 {
-    @safe this(in string hostAddress, in string description, in bool builtIn) pure
+    @safe this(in string type, in string address, in string description) pure
     {
-        this.hostAddress = hostAddress.dup;
-        this.description = description.dup;
-        this.builtIn = builtIn;
+        this.type = type;
+        this.address = address;
+        this.description = description;
     }
 
-    string hostAddress;
+    string type;
+    string address;
     string description;
-    bool builtIn;
 }
 
 struct ProxyFilterDTO
 {
-    string hostAddress;
+    string type;
+    string address;
 }
 
 struct ProxyDTO
 {
-    @safe this(in long id, in string hostAddress, in string description, in bool builtIn) pure
+    @safe this(in long id, in string type, in string address, in string description) pure
     {
         this.id = id;
-        this.hostAddress = hostAddress.dup;
-        this.description = description.dup;
-        this.builtIn = builtIn;
+        this.type = type;
+        this.address = address;
+        this.description = description;
     }
 
     @safe this(in ProxyDTO other) pure
     {
         this.id = other.id;
-        this.hostAddress = other.hostAddress.dup;
-        this.description = other.description.dup;
-        this.builtIn = other.builtIn;
+        this.type = other.type;
+        this.address = other.address;
+        this.description = other.description;
     }
 
     long id;
-    string hostAddress;
+    string type;
+    string address;
     string description;
-    bool builtIn;
 }

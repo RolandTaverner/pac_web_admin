@@ -12,21 +12,26 @@ class ProxyValue : ISerializable
 
     @safe this(in ProxyValue v) pure
     {
-        m_hostAddress = v.m_hostAddress.dup;
-        m_description = v.m_description.dup;
-        m_builtIn = v.m_builtIn;
+        m_type = v.m_type;
+        m_address = v.m_address;
+        m_description = v.m_description;
     }
 
-    @safe this(in string hostAddress, in string description, in bool builtIn) pure
+    @safe this(in string type, in string address, in string description) pure
     {
-        m_hostAddress = hostAddress;
+        m_type = type;
+        m_address = address;
         m_description = description;
-        m_builtIn = builtIn;
     }
 
-    @safe const(string) hostAddress() const pure
+    @safe const(string) type() const pure
     {
-        return m_hostAddress;
+        return m_type;
+    }
+
+    @safe const(string) address() const pure
+    {
+        return m_address;
     }
 
     @safe const(string) description() const pure
@@ -34,56 +39,51 @@ class ProxyValue : ISerializable
         return m_description;
     }
 
-    @safe bool builtIn() const pure
-    {
-        return m_builtIn;
-    }
-
     @safe JSONValue toJSON() const
     {
         return JSONValue([
-            "hostAddress": JSONValue(hostAddress()),
+            "type": JSONValue(type()),
+            "address": JSONValue(address()),
             "description": JSONValue(description()),
-            "builtIn": JSONValue(builtIn())
         ]);
     }
 
     unittest
     {
-        ProxyValue value = new ProxyValue("example.com:8080", "test", false);
+        ProxyValue value = new ProxyValue("PROXY", "example.com:8080", "test");
         const JSONValue v = value.toJSON();
 
-        assert(v.object["hostAddress"].str == "example.com:8080");
+        assert(v.object["address"].str == "example.com:8080");
         assert(v.object["description"].str == "test");
-        assert(v.object["builtIn"].boolean == false);
+        assert(v.object["type"].str == "PROXY");
     }
 
     override void fromJSON(in JSONValue v)
     {
-        m_hostAddress = v.object["hostAddress"].str;
+        m_type = v.object["type"].str;
+        m_address = v.object["address"].str;
         m_description = v.object["description"].str;
-        m_builtIn = v.object["builtIn"].boolean;
     }
 
     unittest
     {
         JSONValue v = JSONValue.emptyObject;
-        v.object["hostAddress"] = JSONValue("example.com:8080");
+        v.object["type"] = JSONValue("PROXY");
+        v.object["address"] = JSONValue("example.com:8080");
         v.object["description"] = JSONValue("test");
-        v.object["builtIn"] = JSONValue(false);
 
         ProxyValue value = new ProxyValue();
         value.fromJSON(v);
 
-        assert(value.hostAddress() == "example.com:8080");
+        assert(value.type() == "PROXY");
+        assert(value.address() == "example.com:8080");
         assert(value.description() == "test");
-        assert(value.builtIn() == false);
     }
 
 protected:
-    string m_hostAddress;
+    string m_type;
+    string m_address;
     string m_description;
-    bool m_builtIn;
 }
 
 alias Proxy = DataObject!(Key, ProxyValue);

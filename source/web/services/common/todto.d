@@ -24,7 +24,7 @@ import web.api.pac;
 
 @safe ProxyDTO toDTO(in Proxy p) pure
 {
-    return ProxyDTO(p.id(), p.hostAddress(), p.description(), p.builtIn());
+    return ProxyDTO(p.id(), p.type(), p.address(), p.description());
 }
 
 @safe HostRuleDTO toDTO(in HostRule hr) pure

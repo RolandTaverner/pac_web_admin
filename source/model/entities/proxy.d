@@ -8,22 +8,27 @@ class Proxy
     @safe this(in Proxy other) pure
     {
         m_id = other.m_id;
-        m_hostAddress = other.m_hostAddress.dup;
-        m_description = other.m_description.dup;
-        m_builtIn = other.m_builtIn;
+        m_type = other.m_type;
+        m_address = other.m_address;
+        m_description = other.m_description;
     }
 
-    @safe this(in long id, in string hostAddress, in string description, in bool builtIn) pure
+    @safe this(in long id, in string type, in string address, in string description) pure
     {
         m_id = id;
-        m_hostAddress = hostAddress.dup;
-        m_description = description.dup;
-        m_builtIn = builtIn;
+        m_type = type;
+        m_address = address;
+        m_description = description;
     }
 
-    @safe const(string) hostAddress() const pure
+    @safe const(string) type() const pure
     {
-        return m_hostAddress;
+        return m_type;
+    }
+
+    @safe const(string) address() const pure
+    {
+        return m_address;
     }
 
     @safe const(string) description() const pure
@@ -31,34 +36,31 @@ class Proxy
         return m_description;
     }
 
-    @safe bool builtIn() const pure
-    {
-        return m_builtIn;
-    }
-
     mixin entityId!();
 
 private:
-    string m_hostAddress;
+    string m_type;
+    string m_address;
     string m_description;
-    bool m_builtIn;
 }
 
 struct ProxyInput
 {
-    string hostAddress;
+    string type;
+    string address;
     string description;
-    bool builtIn;
 }
 
 struct ProxyFilter
 {
-    @safe this(in string hostAddress) pure
+    @safe this(in string type, in string address) pure
     {
-        this.hostAddress = hostAddress.dup;
+        this.type = type;
+        this.address = address;
     }
     
-    string hostAddress;
+    string type;
+    string address;
 }
 
 class ProxyNotFound : NotFoundBase!(Proxy)
