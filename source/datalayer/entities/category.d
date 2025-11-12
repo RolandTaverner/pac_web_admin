@@ -12,7 +12,7 @@ class CategoryValue : ISerializable
 
     @safe this(in CategoryValue v) pure
     {
-        m_name = v.m_name.dup;
+        m_name = v.m_name;
     }
 
     @safe this(in string name) pure

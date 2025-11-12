@@ -7,10 +7,10 @@ import std.exception;
 import std.json;
 
 import datalayer.entities.category;
-import datalayer.entities.hostrule;
+import datalayer.entities.condition;
 import datalayer.entities.pac;
 import datalayer.entities.proxy;
-import datalayer.entities.proxyrules;
+import datalayer.entities.proxyrule;
 import datalayer.repository.repository;
 
 interface IStorageSaver
@@ -18,7 +18,7 @@ interface IStorageSaver
     @trusted void save(ref const JSONValue v);
 }
 
-class Storage : ICategoryListener, IHostRuleListener, IPACListener, IProxyListener, IProxyRulesListener
+class Storage : ICategoryListener, IConditionListener, IPACListener, IProxyListener, IProxyRuleListener
 {
     this(IStorageSaver saver)
     {
@@ -26,10 +26,10 @@ class Storage : ICategoryListener, IHostRuleListener, IPACListener, IProxyListen
         m_mutex = new ReadWriteMutex();
 
         m_categories = new CategoryRepository(this);
-        m_hostRules = new HostRuleRepository(this);
+        m_conditions = new ConditionRepository(this);
         m_pacs = new PACRepository(this);
         m_proxies = new ProxyRepository(this);
-        m_proxyRules = new ProxyRulesRepository(this);
+        m_proxyRules = new ProxyRuleRepository(this);
     }
 
     @safe JSONValue dump() 
@@ -39,18 +39,9 @@ class Storage : ICategoryListener, IHostRuleListener, IPACListener, IProxyListen
         {
             foreach (ref collection; m_data.byKeyValue) {
                 v[collection.key] = JSONValue(collection.value.byValue.array);
-                
-                //writeln(pair.key, ": ", pair.value);
             }
         }
 
-        // return JSONValue([
-        //     "category": m_categories.toJSON(),
-        //     "hostrule": m_hostRules.toJSON(),
-        //     "pac": m_pacs.toJSON(),
-        //     "proxy": m_proxies.toJSON(),
-        //     "proxyrule": m_proxyRules.toJSON(),
-        // ]);
         return v;
     }
 
@@ -59,10 +50,10 @@ class Storage : ICategoryListener, IHostRuleListener, IPACListener, IProxyListen
         synchronized (m_mutex.writer)
         {
             loadCollection!(Category)(v, m_categories);
-            loadCollection!(HostRule)(v, m_hostRules);
+            loadCollection!(Condition)(v, m_conditions);
             loadCollection!(PAC)(v, m_pacs);
             loadCollection!(Proxy)(v, m_proxies);
-            loadCollection!(ProxyRules)(v, m_proxyRules);
+            loadCollection!(ProxyRule)(v, m_proxyRules);
         }
     }
 
@@ -71,9 +62,9 @@ class Storage : ICategoryListener, IHostRuleListener, IPACListener, IProxyListen
         return m_categories;
     }
 
-    @safe inout(HostRuleRepository) hostRules() inout pure
+    @safe inout(ConditionRepository) conditions() inout pure
     {
-        return m_hostRules;
+        return m_conditions;
     }
 
     @safe inout(PACRepository) pacs() inout pure
@@ -86,7 +77,7 @@ class Storage : ICategoryListener, IHostRuleListener, IPACListener, IProxyListen
         return m_proxies;
     }
 
-    @safe inout(ProxyRulesRepository) proxyRules() inout pure
+    @safe inout(ProxyRuleRepository) proxyRules() inout pure
     {
         return m_proxyRules;
     }
@@ -96,7 +87,7 @@ class Storage : ICategoryListener, IHostRuleListener, IPACListener, IProxyListen
         updateStorage(e, object);
     }
 
-    @safe override void onChange(in ListenerEvent e, in HostRule object)
+    @safe override void onChange(in ListenerEvent e, in Condition object)
     {
         updateStorage(e, object);
     }
@@ -111,7 +102,7 @@ class Storage : ICategoryListener, IHostRuleListener, IPACListener, IProxyListen
         updateStorage(e, object);
     }
 
-    @safe override void onChange(in ListenerEvent e, in ProxyRules object)
+    @safe override void onChange(in ListenerEvent e, in ProxyRule object)
     {
         updateStorage(e, object);
     }
@@ -157,10 +148,10 @@ private:
     IStorageSaver m_saver;
 
     CategoryRepository m_categories;
-    HostRuleRepository m_hostRules;
+    ConditionRepository m_conditions;
     PACRepository m_pacs;
     ProxyRepository m_proxies;
-    ProxyRulesRepository m_proxyRules;
+    ProxyRuleRepository m_proxyRules;
 }
 
 private @safe bool isPutEvent(in ListenerEvent e) pure
@@ -178,9 +169,9 @@ string collectionKey(T : Category)()
     return "category";
 }
 
-string collectionKey(T : HostRule)()
+string collectionKey(T : Condition)()
 {
-    return "hostRule";
+    return "condition";
 }
 
 string collectionKey(T : PAC)()
@@ -193,9 +184,9 @@ string collectionKey(T : Proxy)()
     return "proxy";
 }
 
-string collectionKey(T : ProxyRules)()
+string collectionKey(T : ProxyRule)()
 {
-    return "proxyRules";
+    return "proxyRule";
 }
 
 T parseEntity(T)(in JSONValue v)

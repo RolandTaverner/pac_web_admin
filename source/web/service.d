@@ -8,14 +8,14 @@ import model.model;
 import web.api.root;
 import web.api.category;
 import web.api.proxy;
-import web.api.hostrule;
-import web.api.proxyrules;
+import web.api.condition;
+import web.api.proxyrule;
 import web.api.pac;
 
 import web.services.category;
 import web.services.proxy;
-import web.services.hostrule;
-import web.services.proxyrules;
+import web.services.condition;
+import web.services.proxyrule;
 import web.services.pac;
 
 import web.services.common.exceptions;
@@ -29,8 +29,8 @@ class Service : APIRoot
 
         m_categorySvc = new CategoryService(m_model);
         m_proxySvc = new ProxyService(m_model);
-        m_hostRuleSvc = new HostRuleService(m_model);
-        m_proxyRulesSvc = new ProxyRulesService(m_model);
+        m_conditionSvc = new ConditionService(m_model);
+        m_proxyRuleSvc = new ProxyRuleService(m_model);
         m_pacSvc = new PACService(m_model);
     }
 
@@ -44,14 +44,14 @@ class Service : APIRoot
         return m_proxySvc;
     }
 
-    override @property HostRuleAPI hostRules()
+    override @property ConditionAPI conditions()
     {
-        return m_hostRuleSvc;
+        return m_conditionSvc;
     }
 
-    override @property ProxyRulesAPI proxyRules()
+    override @property ProxyRuleAPI proxyRules()
     {
-        return m_proxyRulesSvc;
+        return m_proxyRuleSvc;
     }
 
     override @property PACAPI pacs()
@@ -63,8 +63,8 @@ private:
     Model m_model;
     CategoryService m_categorySvc;
     ProxyService m_proxySvc;
-    HostRuleService m_hostRuleSvc;
-    ProxyRulesService m_proxyRulesSvc;
+    ConditionService m_conditionSvc;
+    ProxyRuleService m_proxyRuleSvc;
     PACService m_pacSvc;
 }
 

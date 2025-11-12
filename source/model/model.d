@@ -9,15 +9,15 @@ import datalayer.storage;
 import re = datalayer.repository.errors;
 
 import dlcategory = datalayer.entities.category;
-import dlhostrule = datalayer.entities.hostrule;
+import dlcondition = datalayer.entities.condition;
 import dlpac = datalayer.entities.pac;
 import dlproxy = datalayer.entities.proxy;
-import dlproxyrules = datalayer.entities.proxyrules;
+import dlproxyrule = datalayer.entities.proxyrule;
 
 import model.entities.category;
-import model.entities.hostrule;
+import model.entities.condition;
 import model.entities.proxy;
-import model.entities.proxyrules;
+import model.entities.proxyrule;
 import model.entities.pac;
 import model.errors.base : ConstraintError;
 
@@ -161,178 +161,178 @@ class Model
         return filtered.map!(p => makeProxy(p)).array;
     }
 
-    // HostRules ======================
+    // Conditions ======================
 
-    @trusted const(HostRule[]) getHostRules()
+    @trusted const(Condition[]) getConditions()
     {
-        return array(hostRules.getAll().map!(c => makeHostRule(c)));
+        return array(conditions.getAll().map!(c => makeCondition(c)));
     }
 
-    @trusted const(HostRule) hostRuleById(in long id)
+    @trusted const(Condition) conditionById(in long id)
     {
         try
         {
-            return makeHostRule(hostRules.getByKey(id));
+            return makeCondition(conditions.getByKey(id));
         }
         catch (re.NotFoundError e)
         {
-            throw new HostRuleNotFound(id);
+            throw new ConditionNotFound(id);
         }
     }
 
-    @trusted const(HostRule) createHostRule(in HostRuleInput hri)
+    @trusted const(Condition) createCondition(in ConditionInput i)
     {
-        enforce!bool(categories.exists(hri.categoryId), new CategoryNotFound(hri.categoryId));
+        enforce!bool(categories.exists(i.categoryId), new CategoryNotFound(i.categoryId));
 
         // TODO: check hostTemplate uniqueness
-        const auto created = hostRules.create(new dlhostrule.HostRuleValue(hri.hostTemplate, hri.strict, hri
-                .categoryId));
-        return makeHostRule(created);
+        const auto created = conditions.create(
+            new dlcondition.ConditionValue(i.type, i.expression, i.categoryId));
+        return makeCondition(created);
     }
 
-    @trusted const(HostRule) updateHostRule(in long id, in HostRuleInput hri)
+    @trusted const(Condition) updateCondition(in long id, in ConditionInput i)
     {
-        enforce!bool(categories.exists(hri.categoryId), new CategoryNotFound(hri.categoryId));
+        enforce!bool(categories.exists(i.categoryId), new CategoryNotFound(i.categoryId));
 
         try
         {
             // TODO: check hostTemplate uniqueness
-            const auto updated = hostRules.update(id, new dlhostrule.HostRuleValue(hri.hostTemplate, hri.strict, hri
-                    .categoryId));
-            return makeHostRule(updated);
+            const auto updated = conditions.update(id,
+                new dlcondition.ConditionValue(i.type, i.expression, i.categoryId));
+            return makeCondition(updated);
         }
         catch (re.NotFoundError e)
         {
-            throw new HostRuleNotFound(id);
+            throw new ConditionNotFound(id);
         }
     }
 
-    @trusted const(HostRule) deleteHostRule(long id)
+    @trusted const(Condition) deleteCondition(long id)
     {
         try
         {
             // TODO: update proxy rules
-            const auto deleted = hostRules.remove(id);
-            return makeHostRule(deleted);
+            const auto deleted = conditions.remove(id);
+            return makeCondition(deleted);
         }
         catch (re.NotFoundError e)
         {
-            throw new HostRuleNotFound(id);
+            throw new ConditionNotFound(id);
         }
     }
 
     // ProxyRules ======================
 
-    @trusted const(ProxyRules[]) getProxyRules()
+    @trusted const(ProxyRule[]) getProxyRules()
     {
-        return array(proxyRules.getAll().map!(c => makeProxyRules(c)));
+        return array(proxyRules.getAll().map!(c => makeProxyRule(c)));
     }
 
-    @trusted const(ProxyRules) proxyRulesById(in long id)
+    @trusted const(ProxyRule) proxyRuleById(in long id)
     {
         try
         {
-            return makeProxyRules(proxyRules.getByKey(id));
+            return makeProxyRule(proxyRules.getByKey(id));
         }
         catch (re.NotFoundError e)
         {
-            throw new ProxyRulesNotFound(id);
+            throw new ProxyRuleNotFound(id);
         }
     }
 
-    @trusted const(ProxyRules) createProxyRules(in ProxyRulesInput pri)
+    @trusted const(ProxyRule) createProxyRule(in ProxyRuleInput i)
     {
-        enforce!bool(proxies.exists(pri.proxyId), new ProxyNotFound(pri.proxyId));
-        foreach (hrId; pri.hostRuleIds)
+        enforce!bool(proxies.exists(i.proxyId), new ProxyNotFound(i.proxyId));
+        foreach (hrId; i.conditionIds)
         {
-            enforce!bool(hostRules.exists(hrId), new HostRuleNotFound(hrId));
+            enforce!bool(conditions.exists(hrId), new ConditionNotFound(hrId));
         }
 
-        const auto created = proxyRules.create(new dlproxyrules.ProxyRulesValue(pri.proxyId, pri.enabled, pri.name, pri
-                .hostRuleIds));
-        return makeProxyRules(created);
+        const auto created = proxyRules.create(new dlproxyrule.ProxyRuleValue(i.proxyId, i.enabled, i.name, i
+                .conditionIds));
+        return makeProxyRule(created);
     }
 
-    @trusted const(ProxyRules) updateProxyRules(in long id, in ProxyRulesInput pri)
+    @trusted const(ProxyRule) updateProxyRule(in long id, in ProxyRuleInput i)
     {
-        enforce!bool(proxies.exists(pri.proxyId), new ProxyNotFound(pri.proxyId));
-        foreach (hrId; pri.hostRuleIds)
+        enforce!bool(proxies.exists(i.proxyId), new ProxyNotFound(i.proxyId));
+        foreach (hrId; i.conditionIds)
         {
-            enforce!bool(hostRules.exists(hrId), new HostRuleNotFound(hrId));
+            enforce!bool(conditions.exists(hrId), new ConditionNotFound(hrId));
         }
 
         try
         {
-            // TODO: check hostRuleIds uniqueness and existance
-            const auto updated = proxyRules.update(id, new dlproxyrules.ProxyRulesValue(pri.proxyId, pri.enabled, pri
-                    .name, pri.hostRuleIds));
-            return makeProxyRules(updated);
+            // TODO: check conditionIds uniqueness and existance
+            const auto updated = proxyRules.update(id, new dlproxyrule.ProxyRuleValue(i.proxyId, i.enabled, i
+                    .name, i.conditionIds));
+            return makeProxyRule(updated);
         }
         catch (re.NotFoundError e)
         {
-            throw new ProxyRulesNotFound(id);
+            throw new ProxyRuleNotFound(id);
         }
     }
 
-    @trusted const(HostRule[]) proxyRulesAddHostRule(in long id, in long hostRuleId)
+    @trusted const(Condition[]) proxyRuleAddCondition(in long id, in long conditionId)
     {
-        enforce!bool(hostRules.exists(hostRuleId), new HostRuleNotFound(hostRuleId));
+        enforce!bool(conditions.exists(conditionId), new ConditionNotFound(conditionId));
 
         try
         {
-            // TODO: check hostRuleIds uniqueness and existance
+            // TODO: check conditionIds uniqueness and existance
             const auto pr = proxyRules.getByKey(id);
-            const auto hrIds = pr.value().hostRuleIds();
-            if (hrIds.canFind(hostRuleId))
+            const auto hrIds = pr.value().conditionIds();
+            if (hrIds.canFind(conditionId))
             {
                 throw new ConstraintError("already exists"); // TODO: add info
             }
-            const auto newHrIds = hrIds ~ hostRuleId;
-            const auto updated = proxyRules.update(id, new dlproxyrules.ProxyRulesValue(pr.value()
+            const auto newHrIds = hrIds ~ conditionId;
+            const auto updated = proxyRules.update(id, new dlproxyrule.ProxyRuleValue(pr.value()
                     .proxyId(), pr.value().enabled(), pr.value().name(), newHrIds));
 
-            return makeProxyRules(updated).hostRules();
+            return makeProxyRule(updated).conditions();
         }
         catch (re.NotFoundError e)
         {
-            throw new ProxyRulesNotFound(id);
+            throw new ProxyRuleNotFound(id);
         }
     }
 
-    @trusted const(HostRule[]) proxyRulesRemoveHostRule(in long id, in long hostRuleId)
+    @trusted const(Condition[]) proxyRuleRemoveCondition(in long id, in long conditionId)
     {
         try
         {
-            // TODO: check hostRuleIds uniqueness and existance
+            // TODO: check conditionIds uniqueness and existance
             const auto pr = proxyRules.getByKey(id);
-            const auto hrIds = pr.value().hostRuleIds();
-            if (!hrIds.canFind(hostRuleId))
+            const auto hrIds = pr.value().conditionIds();
+            if (!hrIds.canFind(conditionId))
             {
                 throw new ConstraintError("not exists"); // TODO: add info
             }
-            const auto filteredHrIds = array(hrIds.filter!(i => i != hostRuleId));
-            const auto updated = proxyRules.update(id, new dlproxyrules.ProxyRulesValue(pr.value()
+            const auto filteredHrIds = array(hrIds.filter!(i => i != conditionId));
+            const auto updated = proxyRules.update(id, new dlproxyrule.ProxyRuleValue(pr.value()
                     .proxyId(), pr.value().enabled(), pr.value().name(), filteredHrIds));
 
-            return makeProxyRules(updated).hostRules();
+            return makeProxyRule(updated).conditions();
         }
         catch (re.NotFoundError e)
         {
-            throw new ProxyRulesNotFound(id);
+            throw new ProxyRuleNotFound(id);
         }
     }
 
-    @trusted const(ProxyRules) deleteProxyRules(long id)
+    @trusted const(ProxyRule) deleteProxyRule(long id)
     {
         try
         {
             // TODO: update PAC
             const auto deleted = proxyRules.remove(id);
-            return makeProxyRules(deleted);
+            return makeProxyRule(deleted);
         }
         catch (re.NotFoundError e)
         {
-            throw new ProxyRulesNotFound(id);
+            throw new ProxyRuleNotFound(id);
         }
     }
 
@@ -357,26 +357,26 @@ class Model
 
     @trusted const(PAC) createPAC(in PACInput pi)
     {
-        foreach (prId; pi.proxyRulesIds)
+        foreach (prId; pi.proxyRuleIds)
         {
-            enforce!bool(proxyRules.exists(prId), new ProxyRulesNotFound(prId));
+            enforce!bool(proxyRules.exists(prId), new ProxyRuleNotFound(prId));
         }
 
-        const auto created = pacs.create(new dlpac.PACValue(pi.name, pi.description, pi.proxyRulesIds,
+        const auto created = pacs.create(new dlpac.PACValue(pi.name, pi.description, pi.proxyRuleIds,
                 pi.serve, pi.servePath, pi.saveToFS, pi.saveToFSPath));
         return makePAC(created);
     }
 
     @trusted const(PAC) updatePAC(in long id, in PACInput pi)
     {
-        foreach (prId; pi.proxyRulesIds)
+        foreach (prId; pi.proxyRuleIds)
         {
-            enforce!bool(proxyRules.exists(prId), new ProxyRulesNotFound(prId));
+            enforce!bool(proxyRules.exists(prId), new ProxyRuleNotFound(prId));
         }
 
         try
         {
-            const auto updated = pacs.update(id, new dlpac.PACValue(pi.name, pi.description, pi.proxyRulesIds,
+            const auto updated = pacs.update(id, new dlpac.PACValue(pi.name, pi.description, pi.proxyRuleIds,
                     pi.serve, pi.servePath, pi.saveToFS, pi.saveToFSPath));
             return makePAC(updated);
         }
@@ -386,20 +386,20 @@ class Model
         }
     }
 
-    @trusted const(ProxyRules[]) pacAddProxyRules(in long id, in long proxyRulesId)
+    @trusted const(ProxyRule[]) pacAddProxyRule(in long id, in long proxyRuleId)
     {
-        enforce!bool(proxyRules.exists(proxyRulesId), new ProxyRulesNotFound(proxyRulesId));
+        enforce!bool(proxyRules.exists(proxyRuleId), new ProxyRuleNotFound(proxyRuleId));
 
         try
         {
-            // TODO: check hostRuleIds uniqueness and existance
+            // TODO: check conditionIds uniqueness and existance
             const auto pac = pacs.getByKey(id);
-            const auto prIds = pac.value().proxyRulesIds();
-            if (prIds.canFind(proxyRulesId))
+            const auto prIds = pac.value().proxyRuleIds();
+            if (prIds.canFind(proxyRuleId))
             {
                 throw new ConstraintError("already exists"); // TODO: add info
             }
-            const auto newPrIds = prIds ~ proxyRulesId;
+            const auto newPrIds = prIds ~ proxyRuleId;
             const auto updated = pacs.update(id, new dlpac.PACValue(pac.value()
                     .name(), pac.value().description(),
                     newPrIds, pac.value()
@@ -414,20 +414,20 @@ class Model
         }
     }
 
-    @trusted const(ProxyRules[]) pacRemoveProxyRules(in long id, in long proxyRulesId)
+    @trusted const(ProxyRule[]) pacRemoveProxyRule(in long id, in long proxyRuleId)
     {
-        enforce!bool(proxyRules.exists(proxyRulesId), new ProxyRulesNotFound(proxyRulesId));
+        enforce!bool(proxyRules.exists(proxyRuleId), new ProxyRuleNotFound(proxyRuleId));
 
         try
         {
-            // TODO: check hostRuleIds uniqueness and existance
+            // TODO: check conditionIds uniqueness and existance
             const auto pac = pacs.getByKey(id);
-            const auto prIds = pac.value().proxyRulesIds();
-            if (!prIds.canFind(proxyRulesId))
+            const auto prIds = pac.value().proxyRuleIds();
+            if (!prIds.canFind(proxyRuleId))
             {
                 throw new ConstraintError("not exists"); // TODO: add info
             }
-            const auto filteredPrIds = array(prIds.filter!(i => i != proxyRulesId));
+            const auto filteredPrIds = array(prIds.filter!(i => i != proxyRuleId));
             const auto updated = pacs.update(id, new dlpac.PACValue(pac.value()
                     .name(), pac.value().description(),
                     filteredPrIds, pac.value().serve(), pac.value()
@@ -471,19 +471,19 @@ protected:
             dto.value().description());
     }
 
-    @safe HostRule makeHostRule(in dlhostrule.HostRuleRepository.DataObjectType dto)
+    @safe Condition makeCondition(in dlcondition.ConditionRepository.DataObjectType dto)
     {
         auto id = dto.key();
-        auto hostTemplate = dto.value().hostTemplate();
-        auto strict = dto.value().strict();
+        auto type = dto.value().type();
+        auto expression = dto.value().expression();
 
         auto c = categories.getByKey(dto.value().categoryId());
         auto category = makeCategory(c);
 
-        return new HostRule(id, hostTemplate, strict, category);
+        return new Condition(id, type, expression, category);
     }
 
-    @safe ProxyRules makeProxyRules(in dlproxyrules.ProxyRulesRepository.DataObjectType dto)
+    @safe ProxyRule makeProxyRule(in dlproxyrule.ProxyRuleRepository.DataObjectType dto)
     {
         auto id = dto.key();
 
@@ -493,10 +493,10 @@ protected:
         auto enabled = dto.value().enabled();
         auto name = dto.value().name();
 
-        auto hostRules = dto.value().hostRuleIds()
-            .map!(id => makeHostRule(hostRules.getByKey(id))).array;
+        auto conditions = dto.value().conditionIds()
+            .map!(id => makeCondition(conditions.getByKey(id))).array;
 
-        return new ProxyRules(id, proxy, enabled, name, hostRules);
+        return new ProxyRule(id, proxy, enabled, name, conditions);
     }
 
     @safe PAC makePAC(in dlpac.PACRepository.DataObjectType dto)
@@ -509,8 +509,8 @@ protected:
         auto saveToFS = dto.value().saveToFS();
         auto saveToFSPath = dto.value().saveToFSPath();
 
-        auto proxyRules = dto.value().proxyRulesIds()
-            .map!(id => makeProxyRules(proxyRules.getByKey(id))).array;
+        auto proxyRules = dto.value().proxyRuleIds()
+            .map!(id => makeProxyRule(proxyRules.getByKey(id))).array;
 
         return new PAC(id, name, description, proxyRules, serve, servePath, saveToFS, saveToFSPath);
     }
@@ -520,9 +520,9 @@ protected:
         return m_storage.categories();
     }
 
-    @property @safe inout(dlhostrule.HostRuleRepository) hostRules() inout pure
+    @property @safe inout(dlcondition.ConditionRepository) conditions() inout pure
     {
-        return m_storage.hostRules();
+        return m_storage.conditions();
     }
 
     @property @safe inout(dlpac.PACRepository) pacs() inout pure
@@ -535,7 +535,7 @@ protected:
         return m_storage.proxies();
     }
 
-    @property @safe inout(dlproxyrules.ProxyRulesRepository) proxyRules() inout pure
+    @property @safe inout(dlproxyrule.ProxyRuleRepository) proxyRules() inout pure
     {
         return m_storage.proxyRules();
     }

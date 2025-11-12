@@ -6,8 +6,8 @@ import vibe.http.common;
 
 import model.entities.category;
 import model.entities.proxy;
-import model.entities.hostrule;
-import model.entities.proxyrules;
+import model.entities.condition;
+import model.entities.proxyrule;
 import model.entities.pac;
 
 import model.errors.base : ConstraintError;
@@ -28,12 +28,12 @@ T remapExceptions(alias fun, T)() @trusted
         throw new HTTPStatusException(404, e.getEntityType() ~ " id=" ~ to!string(
                 e.getEntityId()) ~ " not found");
     }
-    catch (HostRuleNotFound e)
+    catch (ConditionNotFound e)
     {
         throw new HTTPStatusException(404, e.getEntityType() ~ " id=" ~ to!string(
                 e.getEntityId()) ~ " not found");
     }
-    catch (ProxyRulesNotFound e)
+    catch (ProxyRuleNotFound e)
     {
         throw new HTTPStatusException(404, e.getEntityType() ~ " id=" ~ to!string(
                 e.getEntityId()) ~ " not found");

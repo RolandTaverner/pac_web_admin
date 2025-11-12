@@ -253,7 +253,7 @@ private class UnitTestValue : ISerializable
 
     @safe this(in UnitTestValue v) pure
     {
-        m_data = v.m_data.dup;
+        m_data = v.m_data;
     }
 
     @safe this(in string data) pure

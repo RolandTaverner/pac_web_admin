@@ -7,6 +7,36 @@ Web admin to manage proxy autoconfiguration (PAC) file
 dub run -- --config "pacwebadmin.conf.local"
 ```
 
+# Conditions
+
+## Domain
+
+- type = "host_domain"
+
+Host equals to provided domain.
+
+## Domain and subdomains
+
+- type = "host_subdomain"
+
+Host equals to provided domain or is subdomain of provided domain.
+
+## Subdomains only
+
+- type = "host_subdomain_only"
+
+Host is subdomain of provided domain.
+
+## URL shell expression
+
+- type = "url_shexp_match"
+
+## URL regular expression
+
+- type = "url_regexp_match"
+
+# API 
+
 ## Categories API requests
 
 ### Get all
@@ -233,23 +263,23 @@ Response
 }
 ```
 
-## Host rules API requests
+## Conditions API requests
 
 ### Get all
 
 ```bash
-curl http://127.0.0.1:8080/api/hostrule/all
+curl http://127.0.0.1:8080/api/condition/all
 ```
 
 Response
 
 ```json
 {
-  "hostRules": [
+  "conditions": [
     {
       "id": 1,
-      "hostTemplate": "example.com",
-      "strict": true,
+      "type": "host_domain",
+      "expression": "google.com",
       "category": {
         "id": 2,
         "name": "work"
@@ -257,11 +287,20 @@ Response
     },
     {
       "id": 2,
-      "hostTemplate": "memes.com",
-      "strict": false,
+      "type": "host_domain",
+      "expression": "memes.com",
       "category": {
         "id": 1,
         "name": "fun"
+      }
+    },
+    {
+      "id": 3,
+      "type": "host_domain",
+      "expression": "noexample.com",
+      "category": {
+        "id": 2,
+        "name": "work"
       }
     }
   ]
@@ -271,7 +310,7 @@ Response
 ### Get by id
 
 ```bash
-curl http://127.0.0.1:8080/api/hostrule/1
+curl http://127.0.0.1:8080/api/condition/1
 ```
 
 Response
@@ -279,8 +318,8 @@ Response
 ```json
 {
   "id": 1,
-  "hostTemplate": "example.com",
-  "strict": true,
+  "type": "host_domain",
+  "expression": "google.com",
   "category": {
     "id": 2,
     "name": "work"
@@ -291,16 +330,16 @@ Response
 ### Create
 
 ```bash
-curl -X POST http://127.0.0.1:8080/api/hostrule/create -H "Content-Type: application/json" -d '{"hostTemplate": "example.com", "strict": true, "categoryId": 1}'
+curl -X POST http://127.0.0.1:8080/api/condition/create -H "Content-Type: application/json" -d '{"type": "host_subdomain", "expression": "example.com", "categoryId": 1}'
 ```
 
 Response
 
 ```json
 {
-  "id": 3,
-  "hostTemplate": "example.com",
-  "strict": true,
+  "id": 4,
+  "type": "host_subdomain",
+  "expression": "example.com",
   "category": {
     "id": 1,
     "name": "fun"
@@ -311,7 +350,7 @@ Response
 ### Update
 
 ```bash
-curl -X PUT http://127.0.0.1:8080/api/hostrule/1/update -H "Content-Type: application/json" -d '{"hostTemplate": "noexample.com", "strict": false, "categoryId": 2}'
+ curl -X PUT http://127.0.0.1:8080/api/condition/1/update -H "Content-Type: application/json" -d '{"type": "host_subdomain", "expression": "example.com", "categoryId": 1}'
 ```
 
 Response
@@ -319,11 +358,11 @@ Response
 ```json
 {
   "id": 1,
-  "hostTemplate": "noexample.com",
-  "strict": false,
+  "type": "host_subdomain",
+  "expression": "example.com",
   "category": {
-    "id": 2,
-    "name": "work"
+    "id": 1,
+    "name": "fun"
   }
 }
 ```
@@ -331,7 +370,7 @@ Response
 ### Delete
 
 ```bash
-curl -X DELETE http://127.0.0.1:8080/api/hostrule/1
+curl -X DELETE http://127.0.0.1:8080/api/condition/1
 ```
 
 Response
@@ -339,11 +378,11 @@ Response
 ```json
 {
   "id": 1,
-  "hostTemplate": "noexample.com",
-  "strict": false,
+  "type": "host_subdomain",
+  "expression": "example.com",
   "category": {
-    "id": 2,
-    "name": "work"
+    "id": 1,
+    "name": "fun"
   }
 }
 ```
@@ -353,7 +392,7 @@ Response
 ### Get all
 
 ```bash
-curl http://127.0.0.1:8080/api/proxyrules/all
+curl http://127.0.0.1:8080/api/proxyrule/all
 ```
 
 Response
@@ -371,11 +410,11 @@ Response
       },
       "enabled": true,
       "name": "proxy group 1",
-      "hostRules": [
+      "conditions": [
         {
           "id": 1,
-          "hostTemplate": "google.com",
-          "strict": true,
+          "type": "host_domain",
+          "expression": "google.com",
           "category": {
             "id": 2,
             "name": "work"
@@ -390,7 +429,7 @@ Response
 ### Get by id
 
 ```bash
-curl http://127.0.0.1:8080/api/proxyrules/1
+curl http://127.0.0.1:8080/api/proxyrule/1
 ```
 
 Response
@@ -406,11 +445,11 @@ Response
   },
   "enabled": true,
   "name": "proxy group 1",
-  "hostRules": [
+  "conditions": [
     {
       "id": 1,
-      "hostTemplate": "google.com",
-      "strict": true,
+      "type": "host_domain",
+      "expression": "google.com",
       "category": {
         "id": 2,
         "name": "work"
@@ -423,14 +462,14 @@ Response
 ### Create
 
 ```bash
-curl -X POST http://127.0.0.1:8080/api/proxyrules/create -H "Content-Type: application/json" -d '{"proxyId": 1, "enabled": true, "name": "proxy group 1", "hostRuleIds": [1]}'
+curl -X POST http://127.0.0.1:8080/api/proxyrule/create -H "Content-Type: application/json" -d '{"proxyId": 1, "enabled": true, "name": "proxy group 1", "conditionIds": [1,2]}'
 ```
 
 Response
 
 ```json
 {
-  "id": 1,
+  "id": 4,
   "proxy": {
     "id": 1,
     "type": "HTTP",
@@ -439,14 +478,23 @@ Response
   },
   "enabled": true,
   "name": "proxy group 1",
-  "hostRules": [
+  "conditions": [
     {
       "id": 1,
-      "hostTemplate": "google.com",
-      "strict": true,
+      "type": "host_domain",
+      "expression": "google.com",
       "category": {
         "id": 2,
         "name": "work"
+      }
+    },
+    {
+      "id": 2,
+      "type": "host_subdomain",
+      "expression": "example.com",
+      "category": {
+        "id": 1,
+        "name": "fun"
       }
     }
   ]
@@ -456,7 +504,7 @@ Response
 ### Update
 
 ```bash
-curl -X PUT http://127.0.0.1:8080/api/proxyrules/1/update -H "Content-Type: application/json" -d '{"proxyId": 1, "enabled": true, "name": "proxy group updated", "hostRuleIds": [2]}
+curl -X PUT http://127.0.0.1:8080/api/proxyrule/1/update -H "Content-Type: application/json" -d '{"proxyId": 1, "enabled": true, "name": "proxy group updated", "conditionIds": [2]}'
 ```
 
 Response
@@ -472,11 +520,11 @@ Response
   },
   "enabled": true,
   "name": "proxy group updated",
-  "hostRules": [
+  "conditions": [
     {
       "id": 2,
-      "hostTemplate": "memes.com",
-      "strict": false,
+      "type": "host_subdomain",
+      "expression": "example.com",
       "category": {
         "id": 1,
         "name": "fun"
@@ -489,14 +537,14 @@ Response
 ### Delete
 
 ```bash
-curl -X DELETE http://127.0.0.1:8080/api/proxyrules/1
+curl -X DELETE http://127.0.0.1:8080/api/proxyrule/1
 ```
 
 Response
 
 ```json
 {
-  "id": 3,
+  "id": 1,
   "proxy": {
     "id": 1,
     "type": "HTTP",
@@ -505,11 +553,11 @@ Response
   },
   "enabled": true,
   "name": "proxy group updated",
-  "hostRules": [
+  "conditions": [
     {
       "id": 2,
-      "hostTemplate": "memes.com",
-      "strict": false,
+      "type": "host_subdomain",
+      "expression": "example.com",
       "category": {
         "id": 1,
         "name": "fun"
@@ -519,45 +567,21 @@ Response
 }
 ```
 
-### Get host rules linked to proxy rules
+### Get conditions linked to proxy rules
 
 ```bash
-curl http://127.0.0.1:8080/api/proxyrules/1/hostrules
+curl http://127.0.0.1:8080/api/proxyrule/1/conditions
 ```
 
 Response
 
 ```json
 {
-  "hostRules": [
+  "conditions": [
     {
       "id": 1,
-      "hostTemplate": "google.com",
-      "strict": true,
-      "category": {
-        "id": 2,
-        "name": "work"
-      }
-    }
-  ]
-}
-```
-
-### Add host rule to proxy rules
-
-```bash
-curl -X POST http://127.0.0.1:8080/api/proxyrules/1/hostrules/2
-```
-
-Returns updated host rules for proxy rules object.
-
-```json
-{
-  "hostRules": [
-    {
-      "id": 1,
-      "hostTemplate": "google.com",
-      "strict": true,
+      "type": "host_domain",
+      "expression": "google.com",
       "category": {
         "id": 2,
         "name": "work"
@@ -565,8 +589,8 @@ Returns updated host rules for proxy rules object.
     },
     {
       "id": 2,
-      "hostTemplate": "memes.com",
-      "strict": false,
+      "type": "host_subdomain",
+      "expression": "example.com",
       "category": {
         "id": 1,
         "name": "fun"
@@ -576,21 +600,72 @@ Returns updated host rules for proxy rules object.
 }
 ```
 
-### Delete host rule from proxy rules
+### Add condition to proxy rules
 
 ```bash
-curl -X DELETE http://127.0.0.1:8080/api/proxyrules/1/hostrules/2
+curl -X POST http://127.0.0.1:8080/api/proxyrule/1/conditions/3
 ```
 
-Returns updated host rules for proxy rules object.
+Returns updated conditions for proxy rules object.
 
 ```json
 {
-  "hostRules": [
+  "conditions": [
     {
       "id": 1,
-      "hostTemplate": "google.com",
-      "strict": true,
+      "type": "host_domain",
+      "expression": "google.com",
+      "category": {
+        "id": 2,
+        "name": "work"
+      }
+    },
+    {
+      "id": 2,
+      "type": "host_subdomain",
+      "expression": "example.com",
+      "category": {
+        "id": 1,
+        "name": "fun"
+      }
+    },
+    {
+      "id": 3,
+      "type": "host_domain",
+      "expression": "noexample.com",
+      "category": {
+        "id": 2,
+        "name": "work"
+      }
+    }
+  ]
+}
+```
+
+### Delete condition from proxy rules
+
+```bash
+curl -X DELETE http://127.0.0.1:8080/api/proxyrule/1/conditions/2
+```
+
+Returns updated conditions for proxy rules object.
+
+```json
+{
+  "conditions": [
+    {
+      "id": 1,
+      "type": "host_domain",
+      "expression": "google.com",
+      "category": {
+        "id": 2,
+        "name": "work"
+      }
+    },
+    {
+      "id": 3,
+      "type": "host_domain",
+      "expression": "noexample.com",
       "category": {
         "id": 2,
         "name": "work"
@@ -624,15 +699,15 @@ Response
             "id": 1,
             "type": "HTTP",
             "address": "127.0.0.1:80",
-            "description": "updated description"
+            "description": "description"
           },
           "enabled": true,
           "name": "proxy group 1",
-          "hostRules": [
+          "conditions": [
             {
               "id": 1,
-              "hostTemplate": "google.com",
-              "strict": true,
+              "type": "host_subdomain",
+              "expression": "example.com",
               "category": {
                 "id": 2,
                 "name": "work"
@@ -670,15 +745,15 @@ Response
         "id": 1,
         "type": "HTTP",
         "address": "127.0.0.1:80",
-        "description": "updated description"
+        "description": "description"
       },
       "enabled": true,
       "name": "proxy group 1",
-      "hostRules": [
+      "conditions": [
         {
           "id": 1,
-          "hostTemplate": "google.com",
-          "strict": true,
+          "type": "host_subdomain",
+          "expression": "example.com",
           "category": {
             "id": 2,
             "name": "work"
@@ -697,7 +772,7 @@ Response
 ### Create
 
 ```bash
-curl -X POST http://127.0.0.1:8080/api/pac/create -H "Content-Type: application/json" -d '{"name": "pac 1", "description": "PAC for something", "proxyRulesIds": [1], "serve": true, "servePath": "pac1.pac", "saveToFS": true, "saveToFSPath": "pac1.pac"}'`
+curl -X POST http://127.0.0.1:8080/api/pac/create -H "Content-Type: application/json" -d '{"name": "pac 1", "description": "PAC for something", "proxyRuleIds": [1], "serve": true, "servePath": "pac1.pac", "saveToFS": true, "saveToFSPath": "pac1.pac"}'`
 ```
 
 Response
@@ -718,11 +793,11 @@ Response
       },
       "enabled": true,
       "name": "proxy group 1",
-      "hostRules": [
+      "conditions": [
         {
           "id": 1,
-          "hostTemplate": "google.com",
-          "strict": true,
+          "type": "host_subdomain",
+          "expression": "example.com",
           "category": {
             "id": 2,
             "name": "work"
@@ -741,7 +816,7 @@ Response
 ### Update
 
 ```bash
-curl -X PUT http://127.0.0.1:8080/api/pac/1/update -H "Content-Type: application/json" -d '{"name": "updated pac 1", "description": "updated pac 1 desc", "proxyRulesIds": [2], "serve": false, "servePath": "updatedpac1.pac", "saveToFS": false, "saveToFSPath": "updatedpac1.pac"}'`
+curl -X PUT http://127.0.0.1:8080/api/pac/1/update -H "Content-Type: application/json" -d '{"name": "updated pac 1", "description": "updated pac 1 desc", "proxyRuleIds": [2], "serve": false, "servePath": "updatedpac1.pac", "saveToFS": false, "saveToFSPath": "updatedpac1.pac"}'`
 ```
 
 Response
@@ -762,11 +837,11 @@ Response
       },
       "enabled": true,
       "name": "proxy group 1",
-      "hostRules": [
+      "conditions": [
         {
           "id": 1,
-          "hostTemplate": "google.com",
-          "strict": true,
+          "type": "host_subdomain",
+          "expression": "example.com",
           "category": {
             "id": 2,
             "name": "work"
@@ -774,8 +849,8 @@ Response
         },
         {
           "id": 2,
-          "hostTemplate": "memes.com",
-          "strict": false,
+          "type": "host_domain",
+          "expression": "memes.com",
           "category": {
             "id": 1,
             "name": "fun"
@@ -814,7 +889,7 @@ Response
 {
   "proxyRules": [
     {
-      "id": 1,
+      "id": 2,
       "proxy": {
         "id": 1,
         "type": "HTTP",
@@ -823,11 +898,20 @@ Response
       },
       "enabled": true,
       "name": "proxy group 1",
-      "hostRules": [
+      "conditions": [
         {
           "id": 1,
-          "hostTemplate": "google.com",
-          "strict": true,
+          "type": "host_domain",
+          "expression": "google.com",
+          "category": {
+            "id": 2,
+            "name": "work"
+          }
+        },
+        {
+          "id": 3,
+          "type": "host_domain",
+          "expression": "noexample.com",
           "category": {
             "id": 2,
             "name": "work"
@@ -837,9 +921,10 @@ Response
     }
   ]
 }
+
 ```
 
-### Add proxy rules to PC
+### Add proxy rules to PAC
 
 ```bash
 curl -X POST http://127.0.0.1:8080/api/pac/1/proxyrules/2
@@ -851,7 +936,29 @@ Returns updated proxy rules for PAC object.
 {
   "proxyRules": [
     {
-      "id": 1,
+      "id": 3,
+      "proxy": {
+        "id": 1,
+        "type": "HTTP",
+        "address": "127.0.0.1:80",
+        "description": "updated description"
+      },
+      "enabled": true,
+      "name": "proxy group updated",
+      "conditions": [
+        {
+          "id": 2,
+          "type": "host_subdomain",
+          "expression": "example.com",
+          "category": {
+            "id": 1,
+            "name": "fun"
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
       "proxy": {
         "id": 1,
         "type": "HTTP",
@@ -860,45 +967,23 @@ Returns updated proxy rules for PAC object.
       },
       "enabled": true,
       "name": "proxy group 1",
-      "hostRules": [
+      "conditions": [
         {
           "id": 1,
-          "hostTemplate": "google.com",
-          "strict": true,
-          "category": {
-            "id": 2,
-            "name": "work"
-          }
-        }
-      ]
-    },
-    {
-      "id": 2,
-      "proxy": {
-        "id": 2,
-        "type": "SOCKS",
-        "address": "10.10.0.10:8080",
-        "description": "dante"
-      },
-      "enabled": true,
-      "name": "proxy group 1",
-      "hostRules": [
-        {
-          "id": 1,
-          "hostTemplate": "google.com",
-          "strict": true,
+          "type": "host_domain",
+          "expression": "google.com",
           "category": {
             "id": 2,
             "name": "work"
           }
         },
         {
-          "id": 2,
-          "hostTemplate": "memes.com",
-          "strict": false,
+          "id": 3,
+          "type": "host_domain",
+          "expression": "noexample.com",
           "category": {
-            "id": 1,
-            "name": "fun"
+            "id": 2,
+            "name": "work"
           }
         }
       ]
@@ -919,7 +1004,7 @@ Returns updated proxy rules for PAC object.
 {
   "proxyRules": [
     {
-      "id": 1,
+      "id": 3,
       "proxy": {
         "id": 1,
         "type": "HTTP",
@@ -927,15 +1012,15 @@ Returns updated proxy rules for PAC object.
         "description": "updated description"
       },
       "enabled": true,
-      "name": "proxy group 1",
-      "hostRules": [
+      "name": "proxy group updated",
+      "conditions": [
         {
-          "id": 1,
-          "hostTemplate": "google.com",
-          "strict": true,
+          "id": 2,
+          "type": "host_subdomain",
+          "expression": "example.com",
           "category": {
-            "id": 2,
-            "name": "work"
+            "id": 1,
+            "name": "fun"
           }
         }
       ]

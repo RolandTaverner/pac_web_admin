@@ -14,25 +14,25 @@ class PACValue : ISerializable
 
     @safe this(in PACValue v) pure
     {
-        m_name = v.m_name.dup;
-        m_description = v.m_description.dup;
-        m_proxyRulesIds = v.m_proxyRulesIds.dup;
+        m_name = v.m_name;
+        m_description = v.m_description;
+        m_proxyRuleIds = v.m_proxyRuleIds.dup;
         m_serve = v.m_serve;
         m_servePath = v.m_servePath;
         m_saveToFS = v.m_saveToFS;
         m_saveToFSPath = v.m_saveToFSPath;
     }
 
-    @safe this(in string name, in string description, in long[] proxyRulesIds,
+    @safe this(in string name, in string description, in long[] proxyRuleIds,
         bool serve, string servePath, bool saveToFS, string saveToFSPath) pure
     {
         m_name = name;
         m_description = description;
-        m_proxyRulesIds = proxyRulesIds.dup;
+        m_proxyRuleIds = proxyRuleIds.dup;
         m_serve = serve;
-        m_servePath = servePath.dup;
+        m_servePath = servePath;
         m_saveToFS = saveToFS;
-        m_saveToFSPath = saveToFSPath.dup;
+        m_saveToFSPath = saveToFSPath;
     }
 
     @safe const(string) name() const pure
@@ -45,9 +45,9 @@ class PACValue : ISerializable
         return m_description;
     }
 
-    @safe const(long[]) proxyRulesIds() const pure
+    @safe const(long[]) proxyRuleIds() const pure
     {
-        return m_proxyRulesIds;
+        return m_proxyRuleIds;
     }
 
     @safe bool serve() const pure
@@ -75,7 +75,7 @@ class PACValue : ISerializable
         return JSONValue([
             "name": JSONValue(name()),
             "description": JSONValue(description()),
-            "proxyRulesIds": JSONValue(proxyRulesIds()),
+            "proxyRuleIds": JSONValue(proxyRuleIds()),
             "serve": JSONValue(serve()),
             "servePath": JSONValue(servePath()),
             "saveToFS": JSONValue(saveToFS()),
@@ -90,7 +90,7 @@ class PACValue : ISerializable
 
         assert(v.object["name"].str == "name");
         assert(v.object["description"].str == "description");
-        assert(v.object["proxyRulesIds"].array.length == 3);
+        assert(v.object["proxyRuleIds"].array.length == 3);
         assert(v.object["serve"].boolean == true);
         assert(v.object["servePath"].str == "serve");
         assert(v.object["saveToFS"].boolean == true);
@@ -101,7 +101,7 @@ class PACValue : ISerializable
     {
         m_name = v.object["name"].str;
         m_description = v.object["description"].str;
-        m_proxyRulesIds = array(v.object["proxyRulesIds"].array.map!(jv => jv.integer));
+        m_proxyRuleIds = array(v.object["proxyRuleIds"].array.map!(jv => jv.integer));
         m_serve = v.object["serve"].boolean;
         m_servePath = v.object["servePath"].str;
         m_saveToFS = v.object["saveToFS"].boolean;
@@ -113,7 +113,7 @@ class PACValue : ISerializable
         JSONValue v = JSONValue.emptyObject;
         v.object["name"] = JSONValue("name");
         v.object["description"] = JSONValue("description");
-        v.object["proxyRulesIds"] = JSONValue([1, 2, 3]);
+        v.object["proxyRuleIds"] = JSONValue([1, 2, 3]);
         v.object["serve"] = JSONValue(true);
         v.object["servePath"] = JSONValue("serve");
         v.object["saveToFS"] = JSONValue(true);
@@ -124,7 +124,7 @@ class PACValue : ISerializable
 
         assert(value.name() == "name");
         assert(value.description() == "description");
-        assert(value.proxyRulesIds().length == 3);
+        assert(value.proxyRuleIds().length == 3);
         assert(value.serve() == true);
         assert(value.servePath() == "serve");
         assert(value.saveToFS() == true);
@@ -134,7 +134,7 @@ class PACValue : ISerializable
 protected:
     string m_name;
     string m_description;
-    long[] m_proxyRulesIds;
+    long[] m_proxyRuleIds;
     bool m_serve;
     string m_servePath;
     bool m_saveToFS;

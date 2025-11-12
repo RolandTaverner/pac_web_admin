@@ -5,8 +5,8 @@ import vibe.http.server;
 
 import web.api.category : CategoryAPI;
 import web.api.proxy : ProxyAPI;
-import web.api.hostrule : HostRuleAPI;
-import web.api.proxyrules : ProxyRulesAPI;
+import web.api.condition : ConditionAPI;
+import web.api.proxyrule : ProxyRuleAPI;
 import web.api.pac : PACAPI;
 
 @path("/api/")
@@ -18,11 +18,11 @@ interface APIRoot
     @path("proxy/")
     @property ProxyAPI proxies();
 
-    @path("hostrule/")
-    @property HostRuleAPI hostRules();
+    @path("condition/")
+    @property ConditionAPI conditions();
 
-    @path("proxyrules/")
-    @property ProxyRulesAPI proxyRules();
+    @path("proxyrule/")
+    @property ProxyRuleAPI proxyRules();
 
     @path("pac/")
     @property PACAPI pacs();

@@ -8,13 +8,13 @@ class Category
     @safe this(in long id, in string name) pure
     {
         m_id = id;
-        m_name = name.dup;
+        m_name = name;
     }
 
     @safe this(in Category other) pure
     {
         m_id = other.m_id;
-        m_name = other.m_name.dup;
+        m_name = other.m_name;
     }
 
     @safe const(string) name() const pure
@@ -37,7 +37,7 @@ struct CategoryFilter
 {
     @safe this(in string name) pure
     {
-        this.name = name.dup;
+        this.name = name;
     }
     
     string name;

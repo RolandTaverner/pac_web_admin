@@ -34,7 +34,7 @@ struct CategoryInputDTO
 {
     @safe this(in string name) pure
     {
-        this.name = name.dup;
+        this.name = name;
     }
 
     string name;
@@ -50,13 +50,13 @@ struct CategoryDTO
     @safe this(in long id, in string name) pure
     {
         this.id = id;
-        this.name = name.dup;
+        this.name = name;
     }
 
     @safe this(in CategoryDTO other) pure
     {
         this.id = other.id;
-        this.name = other.name.dup;
+        this.name = other.name;
     }
 
     long id;

@@ -1,35 +1,35 @@
-module model.entities.proxyrules;
+module model.entities.proxyrule;
 
 import model.entities.common;
-import model.entities.hostrule;
+import model.entities.condition;
 import model.entities.proxy;
 import model.errors.base;
 
-class ProxyRules
+class ProxyRule
 {
-    @safe this(in long id, in Proxy proxy, in bool enabled, in string name, in HostRule[] hostRules) pure
+    @safe this(in long id, in Proxy proxy, in bool enabled, in string name, in Condition[] conditions) pure
     {
         m_id = id;
         m_proxy = new Proxy(proxy);
         m_enabled = enabled;
-        m_name = name.dup;
+        m_name = name;
 
-        foreach (hr; hostRules)
+        foreach (c; conditions)
         {
-            m_hostRules ~= new HostRule(hr);
+            m_conditions ~= new Condition(c);
         }
     }
 
-    @safe this(in ProxyRules other) pure
+    @safe this(in ProxyRule other) pure
     {
         m_id = other.m_id;
         m_proxy = new Proxy(other.m_proxy);
         m_enabled = other.m_enabled;
-        m_name = other.m_name.dup;
+        m_name = other.m_name;
 
-        foreach (hr; other.m_hostRules)
+        foreach (hr; other.m_conditions)
         {
-            m_hostRules ~= new HostRule(hr);
+            m_conditions ~= new Condition(hr);
         }
     }
 
@@ -48,9 +48,9 @@ class ProxyRules
         return m_name;
     }
 
-    @safe const(HostRule[]) hostRules() const pure
+    @safe const(Condition[]) conditions() const pure
     {
-        return m_hostRules;
+        return m_conditions;
     }
 
     mixin entityId!();
@@ -59,18 +59,18 @@ private:
     Proxy m_proxy;
     bool m_enabled;
     string m_name;
-    HostRule[] m_hostRules;
+    Condition[] m_conditions;
 }
 
-struct ProxyRulesInput
+struct ProxyRuleInput
 {
     long proxyId;
     bool enabled;
     string name;
-    long[] hostRuleIds;
+    long[] conditionIds;
 }
 
-class ProxyRulesNotFound : NotFoundBase!(ProxyRules)
+class ProxyRuleNotFound : NotFoundBase!(ProxyRule)
 {
     mixin finalEntityErrorCtors!("not found");
 }

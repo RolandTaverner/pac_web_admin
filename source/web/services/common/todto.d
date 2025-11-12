@@ -7,14 +7,14 @@ import std.array;
 
 import model.entities.category;
 import model.entities.proxy;
-import model.entities.hostrule;
-import model.entities.proxyrules;
+import model.entities.condition;
+import model.entities.proxyrule;
 import model.entities.pac;
 
 import web.api.category;
 import web.api.proxy;
-import web.api.hostrule;
-import web.api.proxyrules;
+import web.api.condition;
+import web.api.proxyrule;
 import web.api.pac;
 
 @safe CategoryDTO toDTO(in Category c) pure
@@ -27,21 +27,23 @@ import web.api.pac;
     return ProxyDTO(p.id(), p.type(), p.address(), p.description());
 }
 
-@safe HostRuleDTO toDTO(in HostRule hr) pure
+@safe ConditionDTO toDTO(in Condition c) pure
 {
-    return HostRuleDTO(hr.id(), hr.hostTemplate, hr.strict, toDTO(
-            hr.category()));
+    return ConditionDTO(c.id(),
+        c.type(),
+        c.expression(),
+        toDTO(c.category()));
 }
 
-@safe ProxyRulesDTO toDTO(in ProxyRules prs) pure
+@safe ProxyRuleDTO toDTO(in ProxyRule prs) pure
 {
-    const auto hostRules = prs.hostRules()
-        .map!(hr => toDTO(hr))
+    const auto conditions = prs.conditions()
+        .map!(c => toDTO(c))
         .array
         .sort!((a, b) => a.id < b.id, SwapStrategy.stable)
         .array;
 
-    return ProxyRulesDTO(prs.id(), toDTO(prs.proxy()), prs.enabled(), prs.name(), hostRules);
+    return ProxyRuleDTO(prs.id(), toDTO(prs.proxy()), prs.enabled(), prs.name(), conditions);
 }
 
 @safe PACDTO toDTO(in PAC p) pure
