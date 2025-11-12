@@ -1028,3 +1028,6 @@ Returns updated proxy rules for PAC object.
   ]
 }
 ```
+
+
+MIME type specifically used for Proxy Auto-Configuration (PAC) files application/x-ns-proxy-autoconfig
