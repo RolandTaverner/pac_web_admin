@@ -3,6 +3,7 @@ module web.api.pac;
 import vibe.web.rest;
 import vibe.http.server;
 
+import web.api.proxy;
 import web.api.proxyrule;
 
 interface PACAPI
@@ -73,6 +74,7 @@ struct PACInputDTO
     string servePath;
     bool saveToFS;
     string saveToFSPath;
+    long fallbackProxyId;
 }
 
 struct ProxyRulePriorityDTO
@@ -102,7 +104,8 @@ struct PACDTO
         in bool serve,
         in string servePath,
         in bool saveToFS,
-        in string saveToFSPath) pure
+        in string saveToFSPath,
+        in ProxyDTO fallbackProxy) pure
     {
         this.id = id;
         this.name = name;
@@ -118,6 +121,7 @@ struct PACDTO
         this.servePath = servePath;
         this.saveToFS = saveToFS;
         this.saveToFSPath = saveToFSPath;
+        this.fallbackProxy = ProxyDTO(fallbackProxy);
     }
 
     @safe this(in PACDTO other) pure
@@ -136,6 +140,7 @@ struct PACDTO
         this.servePath = other.servePath;
         this.saveToFS = other.saveToFS;
         this.saveToFSPath = other.saveToFSPath;
+        this.fallbackProxy = ProxyDTO(other.fallbackProxy);
     }
 
     long id;
@@ -146,6 +151,7 @@ struct PACDTO
     string servePath;
     bool saveToFS;
     string saveToFSPath;
+    ProxyDTO fallbackProxy;
 }
 
 struct ProxyRulePriorityList
@@ -157,7 +163,7 @@ unittest
 {
     const ProxyRulePriorityDTO[] proxyRules = [];
 
-    auto p = PACDTO(1, "name", "desc", proxyRules, true, "serve", true, "save");
+    auto p = PACDTO(1, "name", "desc", proxyRules, true, "serve", true, "save", ProxyDTO(1, "DIRECT", "", ""));
 
     assert(p.id == 1);
 }

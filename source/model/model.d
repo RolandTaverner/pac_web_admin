@@ -455,11 +455,7 @@ class Model
 
         synchronized (m_mutex.writer)
         {
-
-            foreach (prId; i.proxyRules.byKey())
-            {
-                enforce!bool(proxyRules.exists(prId), new ProxyRuleNotFound(prId));
-            }
+            validatePACModify(i);
 
             const auto created = pacs.create(
                 new dlpac.PACValue(i.name.strip,
@@ -468,7 +464,8 @@ class Model
                     i.serve,
                     i.servePath.strip,
                     i.saveToFS,
-                    i.saveToFSPath.strip));
+                    i.saveToFSPath.strip,
+                    i.fallbackProxyId));
             return makePAC(created);
         }
     }
@@ -479,11 +476,7 @@ class Model
 
         synchronized (m_mutex.writer)
         {
-            foreach (prId; i.proxyRules.byKey())
-            {
-                enforce!bool(proxyRules.exists(prId), new ProxyRuleNotFound(prId));
-            }
-
+            validatePACModify(i);
             try
             {
                 const auto updated = pacs.update(id,
@@ -493,7 +486,8 @@ class Model
                         i.serve,
                         i.servePath.strip,
                         i.saveToFS,
-                        i.saveToFSPath.strip));
+                        i.saveToFSPath.strip,
+                        i.fallbackProxyId));
                 return makePAC(updated);
             }
             catch (re.NotFoundError e)
@@ -525,12 +519,11 @@ class Model
                         .name(),
                         pac.value().description(),
                         updatedPrs,
-                        pac.value()
-                        .serve(),
+                        pac.value().serve(),
                         pac.value().servePath(),
-                        pac.value()
-                        .saveToFS(),
-                        pac.value().saveToFSPath());
+                        pac.value().saveToFS(),
+                        pac.value().saveToFSPath(),
+                        pac.value().fallbackProxyId());
                 const auto updated = pacs.update(id, updatedValue);
 
                 return makePAC(updated).proxyRules();
@@ -561,16 +554,14 @@ class Model
                     .filter!(pr => pr.proxyRuleId != proxyRuleId).array;
                 filteredPrs ~= dlpac.ProxyRulePriority(proxyRuleId, priority);
 
-                auto updatedValue = new dlpac.PACValue(pac.value()
-                        .name(),
+                auto updatedValue = new dlpac.PACValue(pac.value().name(),
                         pac.value().description(),
                         filteredPrs,
-                        pac.value()
-                        .serve(),
+                        pac.value().serve(),
                         pac.value().servePath(),
-                        pac.value()
-                        .saveToFS(),
-                        pac.value().saveToFSPath());
+                        pac.value().saveToFS(),
+                        pac.value().saveToFSPath(),
+                        pac.value().fallbackProxyId());
                 const auto updated = pacs.update(id, updatedValue);
 
                 return makePAC(updated).proxyRules();
@@ -603,12 +594,11 @@ class Model
                         .name(),
                         pac.value().description(),
                         filteredPds,
-                        pac.value()
-                        .serve(),
+                        pac.value().serve(),
                         pac.value().servePath(),
-                        pac.value()
-                        .saveToFS(),
-                        pac.value().saveToFSPath());
+                        pac.value().saveToFS(),
+                        pac.value().saveToFSPath(),
+                        pac.value().fallbackProxyId());
                 const auto updated = pacs.update(id, updatedValue);
 
                 return makePAC(updated).proxyRules();
@@ -759,6 +749,15 @@ protected:
         return new ProxyRule(id, proxy, enabled, name, conditions);
     }
 
+    void validatePACModify(in PACInput i)
+    {
+        foreach (prId; i.proxyRules.byKey())
+        {
+            enforce!bool(proxyRules.exists(prId), new ProxyRuleNotFound(prId));
+        }
+        enforce!bool(proxies.exists(i.fallbackProxyId), new ProxyNotFound(i.fallbackProxyId));
+    }
+
     @safe PAC makePAC(in dlpac.PAC dto)
     {
         auto id = dto.key();
@@ -776,7 +775,9 @@ protected:
             )
             .array;
 
-        return new PAC(id, name, description, prs, serve, servePath, saveToFS, saveToFSPath);
+        auto fallBackProxy = makeProxy(proxies.getByKey(dto.value().fallbackProxyId()));
+
+        return new PAC(id, name, description, prs, serve, servePath, saveToFS, saveToFSPath, fallBackProxy);
     }
 
     @property @safe inout(dlcategory.CategoryRepository) categories() inout pure

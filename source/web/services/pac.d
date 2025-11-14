@@ -51,7 +51,8 @@ class PACService : PACAPI
                 p.serve,
                 p.servePath,
                 p.saveToFS,
-                p.saveToFSPath
+                p.saveToFSPath,
+                p.fallbackProxyId
             };
 
             const PAC created = m_model.createPAC(pi);
@@ -75,7 +76,8 @@ class PACService : PACAPI
                 p.serve,
                 p.servePath,
                 p.saveToFS,
-                p.saveToFSPath
+                p.saveToFSPath,
+                p.fallbackProxyId
             };
 
             const PAC updated = m_model.updatePAC(id, pi);

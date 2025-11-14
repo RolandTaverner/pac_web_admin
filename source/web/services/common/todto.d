@@ -66,5 +66,6 @@ import web.api.pac;
         p.serve(),
         p.servePath(),
         p.saveToFS(),
-        p.saveToFSPath());
+        p.saveToFSPath(),
+        toDTO(p.fallbackProxy()));
 }

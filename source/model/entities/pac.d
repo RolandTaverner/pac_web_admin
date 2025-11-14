@@ -4,6 +4,7 @@ import std.exception : enforce;
 import std.string;
 
 import model.entities.common;
+import model.entities.proxy;
 import model.entities.proxyrule;
 import model.errors.base;
 
@@ -54,6 +55,7 @@ class PAC
         m_servePath = other.m_servePath;
         m_saveToFS = other.m_saveToFS;
         m_saveToFSPath = other.m_saveToFSPath;
+        m_fallbackProxy = new Proxy(other.m_fallbackProxy);
     }
 
     @safe this(in long id,
@@ -63,7 +65,8 @@ class PAC
         bool serve,
         string servePath,
         bool saveToFS,
-        string saveToFSPath) pure
+        string saveToFSPath,
+        Proxy fallbackProxy) pure
     {
         m_id = id;
         m_name = name;
@@ -78,6 +81,7 @@ class PAC
         m_servePath = servePath;
         m_saveToFS = saveToFS;
         m_saveToFSPath = saveToFSPath;
+        m_fallbackProxy = new Proxy(fallbackProxy);
     }
 
     @safe const(string) name() const pure
@@ -115,6 +119,11 @@ class PAC
         return m_saveToFSPath;
     }
 
+    @safe const(Proxy) fallbackProxy() const pure
+    {
+        return m_fallbackProxy;
+    }
+
     mixin entityId!();
 
 private:
@@ -125,6 +134,7 @@ private:
     string m_servePath;
     bool m_saveToFS;
     string m_saveToFSPath;
+    Proxy m_fallbackProxy;
 }
 
 struct PACInput
@@ -136,6 +146,7 @@ struct PACInput
     string servePath;
     bool saveToFS;
     string saveToFSPath;
+    long fallbackProxyId;
 
     @safe void validate() const pure
     {

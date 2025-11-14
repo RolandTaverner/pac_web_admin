@@ -34,6 +34,7 @@ class PACValue : ISerializable
         m_servePath = v.m_servePath;
         m_saveToFS = v.m_saveToFS;
         m_saveToFSPath = v.m_saveToFSPath;
+        m_fallbackProxyId = v.m_fallbackProxyId;
     }
 
     @safe this(in string name,
@@ -42,7 +43,8 @@ class PACValue : ISerializable
         in bool serve,
         in string servePath,
         in bool saveToFS,
-        in string saveToFSPath) pure
+        in string saveToFSPath,
+        in long fallbackProxyId) pure
     {
         m_name = name;
         m_description = description;
@@ -51,6 +53,7 @@ class PACValue : ISerializable
         m_servePath = servePath;
         m_saveToFS = saveToFS;
         m_saveToFSPath = saveToFSPath;
+        m_fallbackProxyId = fallbackProxyId;
     }
 
     @safe const(string) name() const pure
@@ -88,6 +91,11 @@ class PACValue : ISerializable
         return m_saveToFSPath;
     }
 
+    @safe long fallbackProxyId() const pure
+    {
+        return m_fallbackProxyId;
+    }
+
     @safe override JSONValue toJSON() const pure
     {
         return JSONValue([
@@ -102,6 +110,7 @@ class PACValue : ISerializable
             "servePath": JSONValue(servePath()),
             "saveToFS": JSONValue(saveToFS()),
             "saveToFSPath": JSONValue(saveToFSPath()),
+            "fallbackProxyId": JSONValue(fallbackProxyId()),
         ]);
     }
 
@@ -117,7 +126,8 @@ class PACValue : ISerializable
             true,
             "serve",
             true,
-            "save");
+            "save",
+            1);
         const JSONValue v = value.toJSON();
 
         assert(v.object["name"].str == "name");
@@ -127,6 +137,7 @@ class PACValue : ISerializable
         assert(v.object["servePath"].str == "serve");
         assert(v.object["saveToFS"].boolean == true);
         assert(v.object["saveToFSPath"].str == "save");
+        assert(v.object["fallbackProxyId"].integer == 1);
     }
 
     override void fromJSON(in JSONValue v)
@@ -141,6 +152,7 @@ class PACValue : ISerializable
         m_servePath = v.object["servePath"].str;
         m_saveToFS = v.object["saveToFS"].boolean;
         m_saveToFSPath = v.object["saveToFSPath"].str;
+        m_fallbackProxyId = v.object["fallbackProxyId"].integer;
     }
 
     unittest
@@ -157,6 +169,7 @@ class PACValue : ISerializable
         v.object["servePath"] = JSONValue("serve");
         v.object["saveToFS"] = JSONValue(true);
         v.object["saveToFSPath"] = JSONValue("save");
+        v.object["fallbackProxyId"] = JSONValue(1);
 
         PACValue value = new PACValue();
         value.fromJSON(v);
@@ -168,6 +181,7 @@ class PACValue : ISerializable
         assert(value.servePath() == "serve");
         assert(value.saveToFS() == true);
         assert(value.saveToFSPath() == "save");
+        assert(value.fallbackProxyId() == 1);
     }
 
 protected:
@@ -178,6 +192,7 @@ protected:
     string m_servePath;
     bool m_saveToFS;
     string m_saveToFSPath;
+    long m_fallbackProxyId;
 }
 
 alias PAC = DataObject!(Key, PACValue);
